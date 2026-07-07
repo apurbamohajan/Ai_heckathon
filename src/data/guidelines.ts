@@ -1,21 +1,3 @@
-// Clinical practice guideline registry for the medkit-attending grading agent.
-//
-// Each entry is sourced directly from the publishing society's website
-// (NICE, BTS, ESC, ADA, AHA, IDSA/ATS, etc.). Recommendation `text` fields
-// are reproduced verbatim from the public guideline page; classification
-// metadata (`recClass`, `lev`, GRADE) is only set when the source page
-// explicitly states it.
-//
-// Every entry here is `verificationStatus: "auto-fetched"` until a
-// clinician has reviewed the wording and confirmed accuracy. Do not flip
-// any entry to `"verified"` from code — that is a human-MD sign-off only.
-//
-// `lastVerified` is the ISO date the page was retrieved by the curator
-// agent (not necessarily the guideline publication date — see `year`).
-//
-// Citation format used by the grading agent:
-//   `${guideline.id}:${rec.recId}`
-// e.g. "nice-ng136-htn-2019:ng136-1.4.32-step1-acei-arb"
 
 export interface GuidelineRecommendation {
   recId: string;

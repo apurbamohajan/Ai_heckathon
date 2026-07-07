@@ -1,6 +1,3 @@
-// Default full-text reports for tests that come back with no case-specific
-// finding (i.e., clinically normal). Shown in the TestReportCard and on the
-// result toast when the player expands the result.
 
 export const DEFAULT_RESULTS: Record<string, string> = {
   // ───────── Bedside ─────────

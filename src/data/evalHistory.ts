@@ -1,9 +1,3 @@
-// Persist completed AI debrief evaluations to localStorage so the home
-// screen can list past reviews and the user can revisit any of them.
-//
-// Storage shape:
-//   gr_eval_history → JSON array of EvalHistoryEntry, newest first.
-//   Bounded to 100 entries; oldest are dropped beyond that.
 
 import type { CaseEvaluationInput } from '../agents/customTools';
 import type { ActivePatient } from '../game/types';
@@ -17,8 +11,7 @@ export interface EvalHistoryEntry {
   id: string;
   /** Wall-clock ms when the evaluation was saved. */
   savedAt: number;
-  /** Snapshot of the case so the home screen can show name + chief complaint
-   *  without resolving against the catalogue (which may change). */
+
   caseId: string;
   caseName: string;
   caseAge: number;
@@ -28,8 +21,7 @@ export interface EvalHistoryEntry {
   verdict: CaseEvaluationInput['global_rating'];
   /** Full evaluation payload for the detail view. */
   evaluation: CaseEvaluationInput;
-  /** ActivePatient snapshot at debrief time — feeds EvaluationBody so the
-   *  prescriptions / orders panels still render after a reload. */
+
   patientSnapshot: ActivePatient;
 }
 

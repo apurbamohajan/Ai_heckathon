@@ -1,23 +1,8 @@
-/**
- * Medication catalog for the polyclinic prescription workflow.
- *
- * Each entry lists the diagnosis IDs (from `polyclinicPatients.ts` /
- * `patients.ts`) for which the drug is clinically appropriate, plus an
- * explicit contraindications list when the drug would be dangerous or
- * medically inappropriate.  Grading uses these lists to award bonuses for
- * correct prescribing and penalties for wrong/dangerous choices.
- *
- * This is a TRAINING catalogue — doses and indications reflect common
- * real-world outpatient practice but must NOT be used as clinical guidance
- * outside the simulator.
- */
+
 
 import type { ClinicId } from '../game/clinic';
 
-/**
- * High-level therapeutic category used to group the prescription pad.
- * Finer-grained `class` (e.g. "SSRI", "ACE inhibitor") nests under this.
- */
+
 export type MedicationCategory =
   | 'antibiotic'
   | 'antiviral'
@@ -1667,8 +1652,7 @@ export function medicationCategories(): MedicationCategory[] {
   return CATEGORY_ORDER.filter((c) => present.has(c));
 }
 
-/** Suggest the single most specific drug for a diagnosis — used by the
- *  grader to tell the doctor what they missed if they submitted nothing. */
+
 function suggestFor(diagnosisId: string): Medication | undefined {
   // Prefer drugs whose indications list this diagnosis AND which are NOT a
   // generic analgesic/antihistamine so we steer the user to specific Rx.
@@ -1681,9 +1665,6 @@ function suggestFor(diagnosisId: string): Medication | undefined {
   return MEDICATIONS.find((m) => m.indications.includes(diagnosisId));
 }
 
-/* ------------------------------------------------------------------ */
-/*  Grading                                                            */
-/* ------------------------------------------------------------------ */
 
 export interface PrescriptionGrade {
   /** Net points awarded / penalised. */
@@ -1698,13 +1679,6 @@ export interface PrescriptionGrade {
   notes: string[];
 }
 
-/**
- * Grade a prescription:
- *   +30 per correctly-indicated drug (capped at +60)
- *   −20 per contraindicated drug
- *    −5 per unrelated drug (not indicated, not explicitly bad)
- *     0 if nothing prescribed (but mention what they missed)
- */
 export function gradePrescription(
   diagnosisId: string,
   prescribedIds: string[],

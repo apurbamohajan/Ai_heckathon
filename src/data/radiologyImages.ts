@@ -1,26 +1,3 @@
-/**
- * Radiology image catalog.
- *
- * All images are sourced from Wikimedia Commons under CC0 / CC-BY / CC-BY-SA
- * (or US-government public domain). URLs have been spot-checked for a 200
- * response. We always link to the direct `upload.wikimedia.org` file URL so
- * the viewer can render an <img>; the Wikimedia Commons *page* URL is not
- * suitable as an `src`.
- *
- * Selection rules (see getImagingExamples below):
- *   - testId + abnormal=false  → one "normal" reference image
- *   - testId + abnormal=true   → one image picked from the test's abnormal
- *     pool, preferring images that match the case's diagnosisId when
- *     available (e.g. a "pneumonia" diagnosis pulls a pneumonia CXR).
- *   - ECG and imaging that are "bedside" by category are also supported
- *     (ecg gets a rhythm strip).
- *
- * If you add new imagery:
- *   1. Confirm the Commons file page lists a CC0 / CC-BY / CC-BY-SA license.
- *   2. Copy the full "Original file" URL under `upload.wikimedia.org/...`
- *      — it must end in .jpg / .jpeg / .png / .gif / .svg.
- *   3. Add an attribution string in the format "Source · Author · License".
- */
 
 export interface ImagingImage {
   /** Direct image URL. Must end in .jpg / .jpeg / .png / .gif / .svg. */
@@ -33,11 +10,7 @@ export interface ImagingImage {
   subject?: string;
 }
 
-/**
- * Pool of abnormal images for a given imaging test. The optional `tags`
- * are matched against the patient's `diagnosisId` (case-insensitive,
- * substring match) to prefer the most specific image when possible.
- */
+
 interface AbnormalEntry extends ImagingImage {
   /** Lower-case diagnosis hints. */
   tags?: string[];
@@ -45,8 +18,7 @@ interface AbnormalEntry extends ImagingImage {
 
 const WIKIMEDIA = 'Wikimedia Commons';
 
-// ────────────────────────── Normal reference images ──────────────────────────
-// Keyed by test id. These render when `abnormal=false`.
+
 const NORMAL_BY_TEST: Record<string, ImagingImage> = {
   cxr: {
     url: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png',
@@ -119,9 +91,7 @@ const NORMAL_BY_TEST: Record<string, ImagingImage> = {
   },
 
   'ct-angio': {
-    // A normal CTPA slice is hard to source on Commons, so we reuse the
-    // normal thorax axial image — the pulmonary vessels are visible, patent,
-    // and have no filling defect.
+  
     url: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/High-resolution_computed_tomograph_of_a_normal_thorax%2C_axial_plane_%281%29.jpg',
     caption: 'Axial thoracic CT — patent pulmonary vasculature, no filling defect.',
     credit: `${WIKIMEDIA} · Mikael Häggström MD · CC0 (public domain)`,
@@ -178,11 +148,7 @@ const NORMAL_BY_TEST: Record<string, ImagingImage> = {
   },
 };
 
-// ────────────────────────── Abnormal image pools ──────────────────────────
-// Keyed by test id. When `abnormal=true`, we pick one image from this pool
-// (preferring a tag match to the patient's diagnosisId). If no match, we
-// pick deterministically based on a hash of the diagnosisId so the same
-// patient always gets the same image during a session.
+
 
 const ABNORMAL_BY_TEST: Record<string, AbnormalEntry[]> = {
   cxr: [
@@ -1594,12 +1560,7 @@ function tagMatches(tags: string[] | undefined, diagnosisId: string): boolean {
   });
 }
 
-/**
- * Pick 1 image that best fits the given test + abnormal flag + optional
- * diagnosis. Prefer images whose `tags` match the diagnosisId; otherwise
- * fall back to a stable pick based on the diagnosis id's hash (so the
- * same patient always shows the same image on revisit).
- */
+
 export function getImagingExamples(
   testId: string,
   abnormal: boolean,
@@ -1612,8 +1573,7 @@ export function getImagingExamples(
 
   const pool = ABNORMAL_BY_TEST[testId];
   if (!pool || pool.length === 0) {
-    // No abnormal variants curated for this test — fall back to the normal
-    // reference so the viewer still shows something rather than nothing.
+
     const normal = NORMAL_BY_TEST[testId];
     return normal ? [normal] : [];
   }
