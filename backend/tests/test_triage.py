@@ -1,20 +1,3 @@
-"""Unit tests for the direct-inference triage classifier.
-
-These tests mock the Anthropic SDK so we can validate the code path
-without hitting the API (and without needing a real key). Assertions:
-
-    1. The Anthropic client is called with model=claude-opus-4-7.
-    2. The ESI-rules system prompt is passed in the 'system' field.
-    3. Well-formed JSON responses parse into a TriageClassifyResponse.
-    4. Malformed / fenced JSON is parsed when possible, otherwise 502.
-    5. Invalid esi_level values are rejected as 502 rather than silently
-       returned to the caller.
-
-Run with:
-
-    backend/.venv/Scripts/python.exe -m unittest backend.tests.test_triage
-"""
-
 from __future__ import annotations
 
 import json

@@ -1,20 +1,3 @@
-"""Unit tests for the hospital-EHR credential vault endpoint.
-
-Run via the backend venv (so FastAPI + starlette are available):
-
-    backend/.venv/Scripts/python.exe -m unittest backend.tests.test_vault
-
-The tests spin up the FastAPI app in-process via ``TestClient`` so no
-uvicorn or network is required. They assert that:
-
-    1. The EHR_API_TOKEN never appears in any response body or log
-       line produced by a vault lookup.
-    2. Known patients return the expected record shape.
-    3. Unknown patients return 404 instead of leaking the set of IDs.
-    4. The endpoint returns 503 when the vault is not configured.
-    5. Malformed requests are rejected by pydantic without a 500.
-"""
-
 from __future__ import annotations
 
 import logging
