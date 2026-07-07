@@ -1,17 +1,3 @@
-"""Grand Rounds — LiveKit voice agent (Patient persona, real-time).
-
-Runs as a separate process from the FastAPI server. Joins every LiveKit
-room created by the frontend and roleplays the patient over WebRTC:
-
-    Browser mic → Deepgram Nova-3 STT → Claude Haiku 4.5 → Cartesia Sonic-2 TTS → Browser
-
-The persona prompt and voice ID come from room metadata (set by the
-backend `/voice/token` endpoint when the room is created), so this
-worker has zero patient-specific knowledge — TS owns that.
-
-Run:
-    backend/.venv-voice/Scripts/python.exe backend/voice_agent.py dev
-"""
 
 from __future__ import annotations
 

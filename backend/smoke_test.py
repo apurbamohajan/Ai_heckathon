@@ -1,17 +1,3 @@
-"""End-to-end smoke test for the ER backend.
-
-Run this before a demo to confirm the Managed Agents pipeline is alive.
-It exercises every endpoint the browser uses, in order, and prints a
-concise PASS/FAIL per step so you can spot a regression in seconds.
-
-Usage:
-
-    backend/.venv/Scripts/python.exe backend/smoke_test.py
-
-Exits 0 if every step passes, 1 otherwise. Safe to run repeatedly; it
-does not mutate persistent state (creates a throwaway session that will
-idle out for free).
-"""
 
 from __future__ import annotations
 
@@ -160,8 +146,7 @@ def main() -> int:
     status, body = _request("GET", f"/agent/sessions/{session_id}")
     r.check("GET /agent/sessions/{id} returns 200", status == 200, f"status={status}")
 
-    # ─── 5. /agent/sessions/{id}/events (send + stream) ────────────
-    # Spawn the stream in a background thread, then send a message.
+
     import threading
 
     events_collected: list[dict] = []
