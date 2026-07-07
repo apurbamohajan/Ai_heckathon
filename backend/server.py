@@ -1,17 +1,3 @@
-"""
-FastAPI backend for the medkit simulator.
-
-Hosts the Claude Managed Agents proxy (medkit-attending grading) and the
-real-time voice token mint endpoint (`/voice/token`). Real-time voice
-itself runs in `voice_agent.py` as a separate LiveKit Agents worker —
-this server only issues access tokens and pre-creates rooms with
-patient persona metadata.
-
-GET  /health         → backend + agent status report
-POST /agent/...      → Managed Agents proxy (medkit-attending)
-POST /voice/token    → mint LiveKit JWT for a patient room
-"""
-
 from __future__ import annotations
 
 import os
@@ -54,10 +40,6 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-# Shared secret protects /agent/* and /voice/* against direct curl abuse.
-# Vercel Edge Middleware injects this header for browser traffic; a
-# missing/wrong value returns 401 before we burn any Anthropic / LiveKit
-# credits. Localhost origins bypass for `npm run dev`.
 SHARED_SECRET = os.environ.get("BACKEND_SHARED_SECRET", "")
 ALLOWED_ORIGINS = [
     "https://medkit.vercel.app",
@@ -73,19 +55,12 @@ DEV_ORIGINS = {
     "http://127.0.0.1:5174",
 }
 
-# Per-IP rate limit caps even authenticated abuse. SSE streams count as one
-# request, so 120/min leaves plenty of headroom for legitimate use.
 limiter = Limiter(key_func=get_remote_address, default_limits=["120/minute"])
 
 app = FastAPI(title="medkit Backend", version="0.2.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-
-# Middleware ORDER (inside-out — last added runs first on inbound):
-#   1. Auth          (innermost, added first)
-#   2. SlowAPI       (rate limit)
-#   3. CORS          (outermost, handles OPTIONS preflight before auth)
 @app.middleware("http")
 async def require_shared_secret(request: Request, call_next):
     path = request.url.path
@@ -118,9 +93,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    """Frontend polls this before showing the attending dock so a missing
-    API key or unbootstrapped agent surfaces a clearer error than a blank
-    SSE failure."""
+
     has_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
     agent_id = os.environ.get("MEDKIT_AGENT_ID") or None
     env_id = os.environ.get("MEDKIT_ENV_ID") or None
@@ -149,57 +122,6 @@ def health():
     }
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Claude Managed Agents proxy
-# ───────────────────────────────────────────────────────────────────────────
-#
-# The browser talks to this server instead of the Anthropic API directly so
-# that (a) the Managed Agents API key stays server-side and (b) the
-# one-time bootstrap (agents.create + environments.create) is done here
-# once and the resulting IDs are reused across sessions.
-#
-# Per-env vars:
-#   ANTHROPIC_API_KEY  — required. Server-side only; never exposed to the
-#                        browser. Separate from VITE_ANTHROPIC_API_KEY used
-#                        by the browser Haiku patient-persona path.
-#   MEDKIT_AGENT_ID    — persisted agent ID (bootstrap returns it the
-#                        first time; set it here afterwards to skip
-#                        re-creating).
-#   MEDKIT_ENV_ID      — persisted environment ID (same pattern).
-#
-# Endpoints:
-#   POST /agent/bootstrap                      — idempotent; creates
-#                                                env+agent if the env vars
-#                                                are unset, else returns
-#                                                the cached IDs.
-#   POST /agent/sessions                       — create a new session for
-#                                                the current bootstrapped
-#                                                agent.
-#   GET  /agent/sessions/{sid}/stream          — SSE proxy of the live
-#                                                event stream. Used by
-#                                                eventStreamRenderer.tsx.
-#   GET  /agent/sessions/{sid}/events          — paginated history (for
-#                                                the reconnect+dedupe
-#                                                pattern).
-#   POST /agent/sessions/{sid}/events          — forward user events
-#                                                (user.message,
-#                                                user.custom_tool_result,
-#                                                user.interrupt, etc.).
-#   POST /agent/vault/ehr/lookup               — credential-vault demo:
-#                                                attaches EHR_API_TOKEN
-#                                                server-side and returns
-#                                                a fake record. The token
-#                                                never leaves the process.
-#   POST /agent/triage/classify                — one-shot Opus 4.7 ESI
-#                                                classifier for ER
-#                                                arrivals. Stateless;
-#                                                separate from the
-#                                                Managed Agent session.
-#
-# TODO: verify wire names against
-# https://platform.claude.com/docs/en/managed-agents/ before submission —
-# the SDK is beta and field names can drift.
-
 import asyncio
 import json
 import logging
@@ -223,15 +145,11 @@ if not _agent_log.handlers:
     _h.setFormatter(logging.Formatter("[medkit.agent] %(levelname)s %(message)s"))
     _agent_log.addHandler(_h)
 
-# Guards against two concurrent /agent/bootstrap calls creating two
-# agents + two environments. Threading.Lock because bootstrap runs in
-# FastAPI's threadpool (sync endpoint).
+
+
 _bootstrap_lock = threading.Lock()
 
-# SSE keepalive. EventSource will silently time out if the connection is
-# idle past the browser's threshold (~30s for Chrome, longer elsewhere).
-# We emit an SSE comment line every N seconds so the socket stays warm
-# and the browser's `onerror` reconnect logic doesn't fire.
+
 SSE_KEEPALIVE_SEC = 15.0
 
 
@@ -239,11 +157,7 @@ AGENT_MODEL = "claude-opus-4-7"
 AGENT_NAME = "medkit-attending"
 ENV_NAME = "medkit-attending-env"
 
-# Direct-inference model for the dedicated triage-reasoning endpoint.
-# Pinned to Opus 4.7 because the spec reserves triage for the strongest
-# clinical-reasoning model — see CLAUDE.md's "Model routing" table. This
-# is a separate code path from the Managed Agent (AGENT_MODEL); the
-# agent observes the whole encounter, triage classifies one arrival.
+
 TRIAGE_MODEL = "claude-opus-4-7"
 TRIAGE_MAX_TOKENS = 512
 
@@ -371,8 +285,7 @@ MEDKIT_ATTENDING_SYSTEM_PROMPT = (
     "advice outside the simulator."
 )
 
-# Custom tool JSON schemas — must match the Zod schemas in
-# src/agents/customTools.ts. If you change either side, update both.
+
 MEDKIT_CUSTOM_TOOLS: list[dict] = [
     {
         "type": "custom",
@@ -431,16 +344,7 @@ MEDKIT_CUSTOM_TOOLS: list[dict] = [
         },
     },
     {
-        # End-of-encounter OSCE debrief. Replaces the older
-        # `render_case_grade` (a flat score+notes blob): this one carries
-        # a per-criterion verdict, three-domain scores, citations into the
-        # guideline registry the frontend ships with the debrief request,
-        # and a 1–2 paragraph spoken-aloud narrative. The renderer
-        # `<CaseEvaluationCard>` resolves every `guideline_ref` against the
-        # registry and shows a verbatim cite-card next to each criterion.
-        #
-        # The Zod schema in src/agents/customTools.ts must mirror this; if
-        # you change one, update the other.
+ 
         "type": "custom",
         "name": "render_case_evaluation",
         "description": (
@@ -614,12 +518,7 @@ MEDKIT_CUSTOM_TOOLS: list[dict] = [
         },
     },
     {
-        # Write-shaped tool: surfaces a disruptive banner in the trainee
-        # UI. Gated by the frontend permission policy — the renderer shows
-        # an approve/decline dialog and only acks once the human confirms.
-        # Custom tools aren't covered by Anthropic's own permission-policy
-        # gate (that's native + MCP tools only), so the confirm happens
-        # client-side in src/agents/eventStreamRenderer.tsx.
+  
         "type": "custom",
         "name": "flag_critical_finding",
         "description": (
@@ -640,12 +539,7 @@ MEDKIT_CUSTOM_TOOLS: list[dict] = [
         },
     },
     {
-        # Credential-vault demo tool. When the agent emits this, the
-        # browser calls POST /agent/vault/ehr/lookup. The backend attaches
-        # the EHR auth token from server-side state (env var) and returns
-        # the fake record. The EHR_API_TOKEN never touches the Claude
-        # context or the browser — it's the "credential vault" pattern
-        # from Michael's Managed Agents session, modeled for a demo.
+       
         "type": "custom",
         "name": "lookup_ehr_history",
         "description": (
@@ -727,9 +621,7 @@ def bootstrap_agent():
     their own agent + environment.
     """
     with _bootstrap_lock:
-        # Re-read env vars under the lock — if an earlier racing call
-        # persisted the IDs (process-wide only; operator still needs to
-        # write .env.local for cross-restart), we skip the create.
+
         agent_id = os.environ.get("MEDKIT_AGENT_ID")
         env_id = os.environ.get("MEDKIT_ENV_ID")
         if agent_id and env_id:
@@ -759,9 +651,6 @@ def bootstrap_agent():
             _agent_log.exception("bootstrap failed")
             raise HTTPException(status_code=500, detail=f"bootstrap failed: {e}")
 
-        # Populate the in-process env vars so racing calls inside the same
-        # server process pick up the cached IDs. Operator still needs to
-        # persist them to backend/.env.local for the NEXT server restart.
         os.environ["MEDKIT_AGENT_ID"] = agent.id
         os.environ["MEDKIT_ENV_ID"] = env.id
         _agent_log.info(
@@ -800,8 +689,7 @@ def refresh_agent():
         )
     client = get_anthropic_client()
     try:
-        # update() is optimistic-concurrency: pass the current version so
-        # we don't clobber a concurrent edit.
+
         current = client.beta.agents.retrieve(agent_id)  # type: ignore[attr-defined]
         updated = client.beta.agents.update(  # type: ignore[attr-defined]
             agent_id,
@@ -885,9 +773,7 @@ async def send_events(session_id: str, request: Request):
     events = body.get("events") if isinstance(body, dict) else None
     if not isinstance(events, list) or not events:
         raise HTTPException(status_code=400, detail="events must be a non-empty list")
-    # Use the ASYNC client here — this endpoint is `async def`, so calling
-    # the sync client would block uvicorn's event loop thread and starve
-    # the SSE stream handlers running in the same loop.
+
     client = get_async_anthropic_client()
     try:
         await client.beta.sessions.events.send(  # type: ignore[attr-defined]
@@ -925,30 +811,7 @@ async def list_events(session_id: str, limit: int = 1000):
 
 @app.get("/agent/sessions/{session_id}/stream")
 async def stream_events(session_id: str, request: Request):
-    """SSE passthrough. Each Managed-Agents event becomes one SSE
-    ``event:``/``data:`` pair so EventSource in the browser can dispatch
-    by type.
 
-    Uses the ASYNC Anthropic client so long-lived streams cooperate with
-    FastAPI's event loop — a synchronous generator here would tie up a
-    threadpool worker per open stream, and with hot-reloading + Strict
-    Mode double-mount, those streams pile up and saturate the pool,
-    which makes EVERY endpoint (including /health) stop responding.
-
-    Three robustness features:
-      1. ``request.is_disconnected()`` checked on every tick, so the
-         upstream stream is released as soon as the browser closes its
-         EventSource.
-      2. ``asyncio.wait_for`` wraps ``anext`` with a timeout — if no
-         upstream event arrives for ``SSE_KEEPALIVE_SEC`` seconds we
-         emit a comment line (``: keepalive\\n\\n``) to keep the socket
-         warm and to run the disconnect check. Without this the browser
-         (Chrome ~30s, nginx default 60s, corporate proxies often less)
-         can silently drop idle streams.
-      3. Any exception bubbling out of the upstream SDK becomes a
-         ``proxy_error`` SSE event so the client knows the pipe died
-         instead of silently seeing EOF.
-    """
     client = get_async_anthropic_client()
 
     async def generator():
@@ -988,9 +851,7 @@ async def stream_events(session_id: str, request: Request):
                     data = json.dumps(payload, default=str)
                     yield f"event: {etype}\ndata: {data}\n\n"
         except asyncio.CancelledError:
-            # Client disconnected mid-await; let it propagate so the
-            # upstream context manager (``async with``) cleans up, but
-            # don't treat it as an error.
+
             raise
         except Exception as e:
             _agent_log.exception("SSE stream failed session_id=%s", session_id)
@@ -1008,27 +869,6 @@ async def stream_events(session_id: str, request: Request):
     )
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Credential vault — hospital EHR stub
-# ───────────────────────────────────────────────────────────────────────────
-#
-# Demo of Michael's "credential vault" pattern: a third-party system
-# (fake hospital EHR) needs an auth token to query patient history. The
-# token lives ONLY on the backend (EHR_API_TOKEN env var). The agent's
-# context window never sees it, the browser never sees it, and it never
-# appears in any event written to the Managed Agents session.
-#
-# Flow:
-#   1. Agent emits agent.custom_tool_use name=lookup_ehr_history.
-#   2. Browser receives the event, POSTs to /agent/vault/ehr/lookup.
-#   3. This endpoint attaches EHR_API_TOKEN server-side, calls the fake
-#      EHR (local dict for the demo; would be an HTTP call in prod),
-#      and returns the history JSON.
-#   4. Browser posts the JSON back as user.custom_tool_result.
-#
-# Logging is intentionally token-free — the log line records that the
-# vault was used and which patient was queried, but never the token
-# value. A grep for the token in logs should return zero hits.
 
 FAKE_EHR_RECORDS: dict[str, dict] = {
     "poly-001": {
@@ -1123,25 +963,7 @@ def vault_ehr_lookup(req: EhrLookupRequest):
     )
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Triage-reasoning endpoint (direct Opus 4.7 inference)
-# ───────────────────────────────────────────────────────────────────────────
-#
-# Separate from the medkit-attending Managed Agent. That agent observes the
-# whole encounter and grades it; this endpoint is a one-shot ESI triage
-# classification called at ER arrival, before the agent has seen enough
-# to form an opinion. Kept on Opus 4.7 — the spec reserves clinical
-# reasoning for the strongest model.
-#
-# Design notes:
-#   • Pure function `run_triage_reasoning(client, request)` so unit
-#     tests can mock the Anthropic client without spinning HTTP.
-#   • The system prompt inlines the 5 ESI rules we actually apply. It
-#     mirrors `.claude/skills/medkit-triage-logic.md` so keep them in sync
-#     when either changes.
-#   • Model output is constrained to JSON via explicit instruction +
-#     assistant prefill; we parse defensively and raise on malformed
-#     output so the caller sees a 502 rather than silent garbage.
+
 
 ESI_TRIAGE_SYSTEM_PROMPT = (
     "You classify ER arrivals on a simplified 3-level ESI scale: "
@@ -1309,16 +1131,7 @@ def triage_classify(req: TriageClassifyRequest):
     return run_triage_reasoning(client, req)
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Patient persona streaming — Haiku 4.5
-# ───────────────────────────────────────────────────────────────────────────
-#
-# The browser used to call Anthropic directly with a VITE_ANTHROPIC_API_KEY
-# (dangerouslyAllowBrowser). That shipped the key in every bundle. We now
-# route patient-persona streaming through the backend so the key stays
-# server-side. SSE frames carry `{"text": "..."}` deltas, terminated with
-# `{"done": true}`. The Haiku response is short (max 256 tokens) so we
-# skip the keepalive logic the long-lived agent stream needs.
+
 
 PATIENT_MODEL = "claude-haiku-4-5"
 PATIENT_MAX_TOKENS = 256
@@ -1383,14 +1196,6 @@ async def patient_stream(req: PatientStreamRequest):
     )
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Mental health screening proxy (Google Gemini 3.5 Flash)
-# ───────────────────────────────────────────────────────────────────────────
-# Frontend posts: { system: string, transcript: string }
-# If GEMINI_API_KEY is present the server forwards to Gemini and parses
-# strict JSON from the model's text output. Otherwise returns 501 so the
-# frontend can fail fast until the key is configured.
-
 
 class MentalHealthRequest(BaseModel):
     system: str
@@ -1451,16 +1256,6 @@ async def mental_health(req: MentalHealthRequest):
     return JSONResponse(parsed)
 
 
-# ───────────────────────────────────────────────────────────────────────────
-# Real-time voice — LiveKit access tokens
-# ───────────────────────────────────────────────────────────────────────────
-#
-# The frontend posts the persona payload here. We create the LiveKit room
-# with that payload as room metadata (so the voice agent worker can read it
-# at room-join time) and return a JWT the browser uses to connect.
-#
-# Persona prompt and initial line are produced by `src/voice/patientPersona.ts`
-# in TS — Python doesn't duplicate the logic, it just relays.
 
 import json as _json
 import secrets as _secrets
@@ -1510,11 +1305,6 @@ async def voice_token(req: VoiceTokenRequest):
         }
     )
 
-    # Pre-create the room so metadata is set before the agent dispatches in.
-    # `agents=[RoomAgentDispatch(agent_name="medkit-voice")]` makes dispatch
-    # explicit by name instead of relying on LiveKit's automatic region/cluster
-    # matching, which fails when the room-creator (Render Oregon) and the
-    # worker (registered in EU/Germany 2) are in different clouds.
     lkapi = _lkapi.LiveKitAPI(lk_url, lk_key, lk_secret)
     try:
         await lkapi.room.create_room(
