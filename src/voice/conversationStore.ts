@@ -9,19 +9,12 @@ export function ensureAudioContext(): AudioContext {
     sharedCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
   if (sharedCtx.state === 'suspended') {
-    // Best-effort resume. Must be called from a user gesture for this to
-    // succeed — callers in the Walk-view panel are wired that way.
+
     sharedCtx.resume().catch(() => undefined);
   }
   return sharedCtx;
 }
 
-/** Cached conversation, keyed by bedIndex. `caseId` is carried alongside so
- *  we can detect when a bed (or the polyclinic sentinel -10) receives a
- *  different patient — in that case the old conversation is disposed and a
- *  fresh one is built for the new persona. Without this, the polyclinic's
- *  single sentinel bedIndex caused new patients to inherit the previous
- *  patient's name, history, and voice. */
 interface CachedConversation {
   conv: Conversation;
   caseId: string;
@@ -45,8 +38,7 @@ export function getOrCreatePatientConversation(
     return existing.conv;
   }
   if (existing) {
-    // A different patient now occupies this slot — tear down the old
-    // conversation so the new persona isn't poisoned by prior history.
+
     existing.conv.dispose();
     store.delete(bedIndex);
   }
@@ -88,10 +80,6 @@ export function clearAllPatientConversations() {
   }
 }
 
-/** Wipe ALL persisted patient chat history from localStorage so that on the
- *  next shift, every patient starts a fresh conversation (no "the doctor
- *  asked me this last shift" memory). Pairs with `clearAllPatientConversations`
- *  to fully reset the voice layer between shifts. */
 export function clearAllConversationStorage() {
   if (typeof window === 'undefined') return;
   try {

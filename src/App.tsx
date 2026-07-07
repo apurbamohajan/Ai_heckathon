@@ -29,8 +29,6 @@ export default function App() {
     applyIntensity(tweaks.intensity);
   }, [tweaks.intensity]);
 
-  // Minimal path-based route: /agentic-rounds boots straight into the
-  // architecture page so the demo can deep-link to it.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const path = window.location.pathname.replace(/\/+$/, '');

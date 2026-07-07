@@ -6,10 +6,7 @@ export function isPediatric(c: PatientCase): boolean {
   return c.age < PEDIATRIC_AGE_THRESHOLD;
 }
 
-/** Tiny FNV-1a string hash. Used to pick a stable, well-distributed
- *  parent gender / parent name suffix from a case ID — without falling
- *  into the trap of `caseId.charCodeAt(0) % 2`, where every pediatric
- *  case (all start with "p") would map to the same parent gender. */
+
 function hashString(s: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
@@ -19,9 +16,7 @@ function hashString(s: string): number {
   return h >>> 0;
 }
 
-/** Deterministic mother/father pick from a case ID. Single source of
- *  truth — used by the 3D scene AND by the voice persona so the visible
- *  parent and the speaking parent are always the same person. */
+
 export function parentGenderForId(caseId: string): 'M' | 'F' {
   return hashString(`${caseId}-parent`) % 2 === 0 ? 'F' : 'M';
 }
@@ -31,11 +26,7 @@ export function parentGenderFor(c: PatientCase): 'M' | 'F' {
 }
 
 export function buildInitialLine(c: PatientCase) {
-  // Use the chief complaint as the speaker's opening words — what they'd
-  // blurt out as the doctor walks up. The pediatric chief complaints in
-  // `polyclinicPatients.ts` are already written in third-person ("She
-  // hasn't pooped...", "Fever, fussy, pulling right ear..."), so they read
-  // naturally as the parent talking about the child.
+
   return { role: 'assistant' as const, content: c.chiefComplaint };
 }
 
@@ -115,16 +106,7 @@ FORBIDDEN examples (never do this):
 Remember: ONLY the words your character speaks out loud.`;
 }
 
-/**
- * Pediatric persona: the SPEAKER is the parent who brought the child in.
- * The child is sitting next to them (or on their lap) — the parent gives
- * the history because young children can't reliably do that themselves.
- *
- * Anamnesis answers in `polyclinicPatients.ts` are already written as
- * brief, descriptive third-person snippets ("Stool every 4-5 days",
- * "Cold last week"), so they read naturally as the parent describing
- * the child.
- */
+
 function buildPediatricParentPersona(
   c: PatientCase,
   setting: 'er' | 'polyclinic',
