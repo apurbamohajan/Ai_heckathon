@@ -23,8 +23,7 @@ import { TopBar } from './primitives';
 import { ExamineOverlay } from './ExamineOverlay';
 import { DockedVoicePanel } from './DockedVoicePanel';
 
-/** Adaptive FOV: keeps the horizontal FOV near 82° regardless of viewport
- *  aspect, plus a hold-Z (or scroll wheel) "lean in" zoom. */
+
 function AdaptiveCameraFov() {
   const { camera, size } = useThree();
   const zoomedRef = useRef(false);
@@ -166,15 +165,11 @@ export function EncounterScreen() {
   const state = useGameState();
   const patient = state.polyclinic.patient;
 
-  // Voice is on the moment the encounter mounts — the FloatingVoicePanel
-  // calls `getOrCreatePatientConversation()` which kicks off LiveKit
-  // connection + mic. We never gate behind a "Begin consultation" button.
+ 
   const [voiceActive, setVoiceActive] = useState(true);
   const [pointerLocked, setPointerLocked] = useState(false);
   const [examineOpen, setExamineOpen] = useState(false);
 
-  // If the user navigated straight here without a patient set, drop the
-  // current selectedCaseId in. Without this the scene shows an empty room.
   useEffect(() => {
     if (!patient) store.loadPolyclinicPatient(state.selectedCaseId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,10 +182,8 @@ export function EncounterScreen() {
     };
   }, []);
 
-  // Track pointer-lock state so the bottom hint can swap copy AND so we
-  // can hard-cancel any lock that engages while Examine is open. The
-  // examineOpen ref is read inside a stable listener (closing over the
-  // value via a ref keeps the listener stable across re-renders).
+
+
   const examineOpenRef = useRef(false);
   examineOpenRef.current = examineOpen;
   useEffect(() => {
@@ -198,8 +191,7 @@ export function EncounterScreen() {
       const locked = !!document.pointerLockElement;
       setPointerLocked(locked);
       if (locked && examineOpenRef.current) {
-        // Examine owns the screen — never let the 3D controls steal the
-        // cursor. Release immediately.
+
         document.exitPointerLock();
       }
     };
@@ -215,11 +207,6 @@ export function EncounterScreen() {
     interactionBus.setActive(null);
   }, [examineOpen]);
 
-  // Global T — toggle voice off / on. Works whether or not pointer-lock
-  // is engaged; mirrors the in-scene Player handler that requires lock.
-  // T while voice is on disposes the conversation (mic + TTS go quiet).
-  // T while voice is off re-enables it — the patient picks back up where
-  // they left off because the conversationStore caches by bedIndex.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 't' && e.key !== 'T') return;
@@ -237,9 +224,7 @@ export function EncounterScreen() {
     return () => window.removeEventListener('keydown', onKey);
   }, [examineOpen]);
 
-  // Global E-to-examine — works whether or not pointer-lock is engaged.
-  // The Player.tsx handler requires lock; this one fills the gap so the
-  // keyboard shortcut works the same as the on-screen Examine button.
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'e' && e.key !== 'E') return;
@@ -265,16 +250,12 @@ export function EncounterScreen() {
     };
   }, [currentPatientCaseId]);
 
-  // Re-arm the voice panel automatically whenever a fresh patient is
-  // loaded (e.g. after End consultation → Next patient flow).
   useEffect(() => {
     if (patient) setVoiceActive(true);
     else setVoiceActive(false);
   }, [currentPatientCaseId, patient]);
 
-  // Look-around is automatic while Examine is closed — PointerLockControls
-  // mounts inside Player and engages on canvas click. When Examine opens
-  // we tear it down so modal clicks can't bleed into the 3D scene.
+
 
   const openExamine = () => {
     if (document.pointerLockElement) document.exitPointerLock();
@@ -283,10 +264,7 @@ export function EncounterScreen() {
   };
 
   const handleInteract = (kind: 'desk' | 'bed' | 'triage', bedIndex?: number) => {
-    // E (examine) on the patient — open the cozy examine overlay so the
-    // doctor can take a history, order tests, read results, and submit a
-    // diagnosis. The voice agent keeps running underneath so the patient
-    // can still answer questions verbally.
+
     if (kind === 'bed' && bedIndex === POLYCLINIC_BED_INDEX) {
       openExamine();
     }
@@ -342,9 +320,7 @@ export function EncounterScreen() {
           position: 'relative',
           height: 'calc(100vh - 67px)',
           overflow: 'hidden',
-          // Hard-block any click bleeding into the 3D scene while the
-          // examine modal owns the screen. PointerLockControls is gated
-          // behind lookMode AND this — defence in depth.
+
           pointerEvents: examineOpen ? 'none' : undefined,
         }}
       >
@@ -444,13 +420,10 @@ export function EncounterScreen() {
           <ExamineOverlay
             onClose={() => setExamineOpen(false)}
             onDispatch={async () => {
-              // 1. Close the modal so the patient's farewell bubble is
-              //    visible while the audio plays.
+
               setExamineOpen(false);
 
-              // 2. sayFarewell now polls until the agent's TTS actually
-              //    finishes (RPC into voice worker → session.say → wait
-              //    for status to leave 'speaking'). No extra padding here.
+
               const conv = getExistingConversation(POLYCLINIC_BED_INDEX);
               if (conv) {
                 try {
@@ -466,9 +439,7 @@ export function EncounterScreen() {
               store.finishPolyclinicCase();
               disposePatientConversation(POLYCLINIC_BED_INDEX);
 
-              // 5. Auto-load the next patient from the active clinic.
-              //    FloatingVoicePanel re-keys on patient.case.id and
-              //    fires the new patient's greeting automatically.
+
               const nextId = store.pickNextCaseId();
               if (nextId) {
                 store.acceptNextPatient(nextId);

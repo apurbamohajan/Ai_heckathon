@@ -3,13 +3,7 @@ import { POLYCLINIC_BED_INDEX } from '../game/store';
 import { getExistingConversation } from '../voice/conversationStore';
 import type { ConversationStatus, SubtitleEvent } from '../voice/conversation';
 
-/** Compact, fixed-position voice transcript card. Used while the Examine
- *  overlay is open so the doctor can still hear/read what the patient is
- *  saying without the in-scene speech bubble bleeding through the modal.
- *
- *  This does NOT own the conversation — it subscribes to whatever the
- *  encounter screen has already booted via FloatingVoicePanel /
- *  conversationStore. When the dock unmounts, the voice keeps running. */
+
 
 interface Props {
   patientName: string;
@@ -20,9 +14,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
   const [status, setStatus] = useState<ConversationStatus>('uninitialized');
   const [subtitle, setSubtitle] = useState<SubtitleEvent>({ who: 'patient', text: '…' });
 
-  // Hook into the live conversation. We resync on mount AND poll for the
-  // first 2s in case the conversation hasn't been created yet (e.g. the
-  // doctor opened Examine before voice connected).
+
   useEffect(() => {
     let disposed = false;
     let attempt = 0;
@@ -35,12 +27,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
         if (attempt++ < 20) window.setTimeout(tryAttach, 100);
         return;
       }
-      // Pull current state and subscribe to future updates via setListeners.
-      // The conversation already has listeners (the in-scene panel), but
-      // setListeners overwrites — we save what's there, fan-out to both.
-      // Simpler approach: just read getMessages() periodically AND read
-      // status via a tick. The Conversation exposes subscribeMessages —
-      // use that for transcript text, and poll getStatus() each rAF.
+
       setStatus(conv.getStatus());
       const msgs = conv.getMessages();
       const last = [...msgs].reverse().find((m) => m.role === 'assistant' || m.role === 'user');
