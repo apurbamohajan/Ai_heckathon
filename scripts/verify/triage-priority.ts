@@ -1,17 +1,3 @@
-/**
- * Verify that each ER PatientCase's severity label isn't blatantly wrong.
- * NOT a formal ESI implementation — ESI keys off chief complaint and resources
- * needed, not just vitals, so a STEMI can have near-normal vitals and still
- * be correctly 'critical'. We therefore only flag the asymmetric cases:
- *
- * - severity='stable' → flag if ANY vital is unstable (HR>130, SpO2<88, SBP<80).
- *   A stable-labelled patient with shock vitals is definitely an authoring bug.
- * - severity='critical' → we do NOT flag on "calm-looking" vitals; too many
- *   false positives (MI, stroke, DKA can present with modest derangement).
- *
- * Polyclinic cases are skipped — outpatient, no ER triage semantics.
- */
-
 import { PATIENT_CASES } from '../../src/data/patients.ts';
 import type { PatientCase } from '../../src/game/types.ts';
 

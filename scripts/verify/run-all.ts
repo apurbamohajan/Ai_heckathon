@@ -1,9 +1,3 @@
-/**
- * One-shot runner for every verification script. Exits with code 1 if any
- * check returns violations. Used by the medkit-verify-simulation skill and
- * (eventually) by the /loop routine.
- */
-
 import { verifyDataIntegrity } from './data-integrity.ts';
 import { verifyTriagePriority } from './triage-priority.ts';
 import { verifyThreeScene } from './three-scene.ts';

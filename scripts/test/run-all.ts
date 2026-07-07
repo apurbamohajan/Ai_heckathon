@@ -1,12 +1,3 @@
-/**
- * Test runner. Discovers every `*.test.ts` file in this directory and
- * hands them to Node's built-in test runner. Exists because
- * `node --test <dir>` trips on the Windows path walker in some Node
- * versions — passing explicit files sidesteps the bug.
- *
- * Invoked by `npm test` → package.json:scripts.test.
- */
-
 import { readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -35,5 +26,5 @@ stream.once('end', () => {
   process.exit(failed === 0 ? 0 : 1);
 });
 
-// Ensure clean exit even if nothing keeps the loop alive.
+
 void pathToFileURL;

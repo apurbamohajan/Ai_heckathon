@@ -1,18 +1,3 @@
-/**
- * Integration-ish tests for the `/loop` slash commands.
- *
- * The verify-loop runner is tested end-to-end: we run it for real
- * against the current simulator state and assert that:
- *   - verify.log gains exactly one new line
- *   - the line format is ISO-timestamp + PASS or FAIL + count
- *   - exit code matches the PASS/FAIL state
- *
- * The slash command markdown files are tested for existence, frontmatter,
- * and for pointing at the runner script. We can't exercise the slash
- * dispatch from unit tests (that's Claude Code territory), but we can
- * catch drift between the command and the runner.
- */
-
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -123,18 +108,13 @@ test('medkit-idea-evolve command file exists and enforces draft-only behavior', 
 });
 
 test('verify-loop script is not referenced by accident outside its command', () => {
-  // Guards against someone re-wiring verify-loop into CI or into the
-  // verify skill — the runner is intended only for /loop firings. If
-  // you WANT to allow it elsewhere, extend this allowlist explicitly.
+
   const allowlist = new Set([
     '.claude/commands/medkit-verify-simulation.md',
     'scripts/loop/verify-loop.ts',
     'scripts/test/loop-commands.test.ts',
   ]);
-  // git grep would miss untracked files (like these, on first add), so
-  // we do a scoped filesystem walk instead. Searching tracked files
-  // would also hide a drive-by edit before commit — which is exactly
-  // the kind of regression this test is here to catch.
+
   const roots = ['.claude', 'scripts', 'src', 'backend'];
   const needle = 'scripts/loop/verify-loop';
   const found: string[] = [];

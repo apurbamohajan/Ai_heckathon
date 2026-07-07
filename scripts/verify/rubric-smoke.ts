@@ -1,14 +1,3 @@
-/**
- * Rubric + registry citation integrity check.
- *
- * Walks every case in `polyclinicPatients.ts` and `patients.ts`, collects
- * the `guideline_ref` from every rubric criterion, and confirms each one
- * resolves in the registry. Also confirms `getRubricFor()` returns the
- * authored rubric on hero cases and the auto-fallback otherwise.
- *
- * Run as part of `npm run verify`.
- */
-
 import { POLYCLINIC_CASES } from '../../src/data/polyclinicPatients.ts';
 import { PATIENT_CASES } from '../../src/data/patients.ts';
 import { getRecommendation } from '../../src/data/guidelines.ts';
@@ -53,9 +42,6 @@ export function verifyRubricCitations(): Violation[] {
     }
   }
 
-  // Auto-rubric must produce a non-empty clinical_management section when
-  // the case has criticalTreatmentIds — that's the contract autoRubric.ts
-  // promises and the agent relies on.
   for (const c of cases) {
     if (c.rubric) continue;
     if (c.criticalTreatmentIds.length === 0) continue;

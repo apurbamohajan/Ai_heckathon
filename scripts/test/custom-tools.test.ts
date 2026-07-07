@@ -1,13 +1,3 @@
-/**
- * Tests for the custom-tool permission policy and schema parity between
- * the browser-side Zod registry (`src/agents/customTools.ts`) and the
- * backend JSON list (`backend/server.py`).
- *
- * Runs under Node 22+'s built-in test runner with native TypeScript
- * support — zero extra deps. Invoke via `npm test` (or directly with
- * `node --test scripts/test/custom-tools.test.ts`).
- */
-
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -119,9 +109,7 @@ test('backend/server.py exposes every name from CUSTOM_TOOL_NAMES', () => {
 
 test('backend/server.py does not advertise tools missing from the frontend registry', () => {
   const py = readFileSync(BACKEND_SERVER, 'utf8');
-  // Extract every "name": "..." inside MEDKIT_CUSTOM_TOOLS. We scope to the
-  // list body so we don't pick up unrelated "name": "..." pairs (e.g.
-  // AGENT_NAME / ENV_NAME at the top).
+
   const listStart = py.indexOf('MEDKIT_CUSTOM_TOOLS: list[dict] = [');
   assert.ok(listStart >= 0, 'MEDKIT_CUSTOM_TOOLS list not found in server.py');
   // Tolerate CRLF (Windows checkout) as well as LF.
@@ -141,8 +129,7 @@ test('backend/server.py does not advertise tools missing from the frontend regis
       `backend advertises tool "${name}" that the frontend registry doesn't know about`,
     );
   }
-  // Also: every frontend name must appear — defense in depth vs the
-  // previous test.
+
   for (const name of frontendNames) {
     assert.ok(
       backendNames.has(name),
