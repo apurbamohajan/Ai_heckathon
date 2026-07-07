@@ -102,17 +102,11 @@ function Loader() {
   return (
     <Html center>
       <div
+        className="glass-panel"
         style={{
-          fontFamily: 'Nunito, sans-serif',
-          fontWeight: 800,
-          color: 'var(--peach-deep)',
-          background: 'white',
-          padding: '8px 14px',
-          border: '3px solid var(--line)',
-          borderRadius: 'var(--r-pill)',
-          boxShadow: 'var(--plush-tiny)',
-          fontSize: 13,
-          letterSpacing: '0.05em',
+          padding: '12px 20px',
+          fontSize: 14,
+          fontWeight: 600,
         }}
       >
         Loading polyclinic…
@@ -393,7 +387,7 @@ export function EncounterScreen() {
         >
           <button
             type="button"
-            className="btn-plush ghost"
+            className="btn btn-ghost"
             onClick={(e) => {
               e.stopPropagation();
               endConsultation();

@@ -16,7 +16,8 @@ export type Screen =
   | 'debrief'
   | 'history'
   | 'agenticRounds'
-  | 'agentTopology';
+  | 'agentTopology'
+  | 'mentalHealth';
 
 export type AvatarStyle = 'cute' | 'portrait' | 'animal' | 'initials';
 export type RoomLayout = 'side' | 'front';

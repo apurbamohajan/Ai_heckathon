@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Doodle, TopBar } from './primitives';
+import { TopBar } from './primitives';
 import { store, useGameState } from '../game/store';
 import { getPatientCase } from '../data/cases';
 import { TESTS } from '../data/tests';
@@ -28,27 +28,27 @@ const GLOBAL_HEADLINE: Record<VerdictBand, string> = {
 };
 
 const GLOBAL_BG: Record<VerdictBand, string> = {
-  excellent: 'var(--mint)',
-  good: 'var(--mint)',
-  satisfactory: 'var(--butter)',
-  borderline: 'var(--peach)',
-  'clear-fail': 'var(--rose)',
+  excellent: 'var(--success-bg)',
+  good: 'var(--success-bg)',
+  satisfactory: 'var(--warning-bg)',
+  borderline: 'var(--warning-bg)',
+  'clear-fail': 'var(--error-bg)',
 };
 
 const GLOBAL_DEEP: Record<VerdictBand, string> = {
-  excellent: 'var(--mint-deep)',
-  good: 'var(--mint-deep)',
-  satisfactory: 'var(--butter-deep)',
-  borderline: 'var(--peach-deep)',
-  'clear-fail': 'var(--rose-deep)',
+  excellent: 'var(--success)',
+  good: 'var(--success)',
+  satisfactory: 'var(--warning)',
+  borderline: 'var(--warning)',
+  'clear-fail': 'var(--error)',
 };
 
 const RING_COLOR: Record<VerdictBand, string> = {
-  excellent: 'var(--mint-deep)',
-  good: 'var(--mint-deep)',
-  satisfactory: 'var(--butter-deep)',
-  borderline: 'var(--peach-deep)',
-  'clear-fail': 'var(--rose-deep)',
+  excellent: 'var(--success)',
+  good: 'var(--success)',
+  satisfactory: 'var(--warning)',
+  borderline: 'var(--warning)',
+  'clear-fail': 'var(--error)',
 };
 
 // ── DomainRing — adapted to take real data + verdict ──────────────
@@ -314,20 +314,19 @@ function StatusBanner({
         ATTENDING
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-        <div className="floaty">
-          <div
-            className="plush"
-            style={{
-              width: 110,
-              height: 110,
-              background: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Doodle kind="star" size={86} color="#FFD86B" />
-          </div>
+<div
+          style={{
+            width: 110,
+            height: 110,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontSize: 48 }}>⭐</span>
         </div>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: 32, lineHeight: 1.05, margin: '4px 0 8px' }}>{title}</h1>
@@ -390,20 +389,19 @@ function GradingProgress({ partialNarration }: { partialNarration: string }) {
         ATTENDING
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-        <div className="floaty">
-          <div
-            className="plush"
-            style={{
-              width: 110,
-              height: 110,
-              background: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Doodle kind="star" size={86} color="#FFD86B" />
-          </div>
+        <div
+          style={{
+            width: 110,
+            height: 110,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontSize: 48 }}>⭐</span>
         </div>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: 32, lineHeight: 1.05, margin: '4px 0 12px' }}>
@@ -579,19 +577,19 @@ export function DebriefScreen() {
         <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
           <button
             type="button"
-            className="btn-plush ghost"
+            className="btn"
             style={{ flex: 1 }}
             onClick={() => store.setScreen('mode')}
           >
-            {'\u2190 Back to polyclinic'}
+            ← Back to polyclinic
           </button>
           <button
             type="button"
-            className="btn-plush primary"
+            className="btn btn-primary"
             style={{ flex: 1.6 }}
             onClick={() => store.setScreen('library')}
           >
-            {'Next case \u2192'}
+            Next case →
           </button>
         </div>
       </div>
@@ -688,20 +686,19 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
           YOUR MARK
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-          <div className="floaty">
-            <div
-              className="plush"
-              style={{
-                width: 110,
-                height: 110,
-                background: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Doodle kind="star" size={86} color="#FFD86B" />
-            </div>
+          <div
+            style={{
+              width: 110,
+              height: 110,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: 48 }}>⭐</span>
           </div>
           <div style={{ flex: 1 }}>
             <div

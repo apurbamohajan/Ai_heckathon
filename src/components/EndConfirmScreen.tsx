@@ -1,4 +1,4 @@
-import { DoodleScatter, PatientFace, TopBar } from './primitives';
+import { TopBar, PatientFace } from './primitives';
 import { getCase } from '../data/cases';
 import { store, useStore, useTweaks } from '../game/store';
 import type { EndConfirmChecks } from '../game/types';
@@ -22,19 +22,12 @@ export function EndConfirmScreen() {
   const c = getCase(caseId);
 
   return (
-    <div className="screen" style={{ background: 'var(--cream)', position: 'relative' }}>
+    <div className="screen" style={{ background: 'transparent', position: 'relative' }}>
       <TopBar here={5} steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter', 'Wrap']} />
-
-      <DoodleScatter
-        items={[
-          { kind: 'sparkle', x: 60, y: 90, size: 22, color: '#FFD86B' },
-          { kind: 'sparkle', x: '88%', y: 130, size: 20, color: '#5AB7F2' },
-        ]}
-      />
 
       <div
         style={{
-          position: 'absolute',
+          position: 'relative',
           inset: 0,
           top: 67,
           display: 'flex',
@@ -44,104 +37,91 @@ export function EndConfirmScreen() {
         }}
       >
         <div
-          className="plush-lg"
+          className="glass-panel"
           style={{
-            width: 720,
-            background: '#FFFCF3',
-            padding: 36,
-            position: 'relative',
-            transform: 'rotate(-0.8deg)',
+            width: 'min(600px, 100%)',
+            padding: 32,
           }}
         >
-          <div style={{ position: 'absolute', right: -38, top: -50 }}>
-            <div className="floaty">
-              <PatientFace style={tweaks.avatarStyle} skin={c.skin} hair={c.hair} size={110} mood="happy" />
-            </div>
-            <div style={{ position: 'absolute', left: -156, top: 16, width: 160 }}>
-              <div
-                style={{
-                  position: 'relative',
-                  background: 'white',
-                  border: '3.5px solid var(--line)',
-                  borderRadius: 'var(--r-md)',
-                  padding: '8px 12px',
-                  fontWeight: 700,
-                  fontSize: 12,
-                  boxShadow: 'var(--plush-sm)',
-                }}
-              >
-                "Is there anything else I should know?"
-                <svg style={{ position: 'absolute', right: -14, top: 14 }} width="20" height="22" viewBox="0 0 20 22">
-                  <path
-                    d="M 0 4 L 18 12 L 0 18 Z"
-                    fill="white"
-                    stroke="var(--line)"
-                    strokeWidth="3.5"
-                    strokeLinejoin="round"
-                  />
-                  <line x1="0" y1="4" x2="0" y2="18" stroke="white" strokeWidth="4" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="chip butter" style={{ marginBottom: 16 }}>
-            BEFORE YOU FINISH
-          </div>
-          <h1 style={{ fontSize: 32, lineHeight: 1.1, marginBottom: 8 }}>Take a breath.</h1>
           <div
             style={{
-              fontSize: 15,
-              color: 'var(--ink-2)',
-              fontWeight: 600,
-              marginBottom: 22,
-              maxWidth: 460,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              marginBottom: 20,
             }}
           >
-            One last check — these affect your debrief. Tick what you actually did.
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
+                background: 'var(--glass)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <PatientFace
+                style={tweaks.avatarStyle}
+                skin={c.skin}
+                hair={c.hair}
+                size={50}
+                mood="happy"
+              />
+            </div>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 24 }}>Take a breath</h2>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--ink-2)' }}>
+                One last check — these affect your debrief. Tick what you actually did.
+              </p>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
             {ITEMS.map((it) => {
               const on = checked[it.id];
               return (
-                <div
+                <button
                   key={it.id}
-                  className="tap"
+                  type="button"
+                  className="interactive"
                   onClick={() => store.toggleEndConfirm(it.id)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 14,
-                    padding: '12px 14px',
-                    background: on ? 'var(--mint)' : 'white',
-                    border: '3px solid var(--line)',
-                    borderRadius: 16,
-                    boxShadow: 'var(--plush-tiny)',
+                    padding: '14px 16px',
+                    background: on ? 'var(--success-bg)' : 'var(--glass)',
+                    border: '1px solid var(--line)',
+                    borderRadius: 'var(--r-lg)',
+                    cursor: 'pointer',
+                    transition: 'all 150ms ease',
                   }}
                 >
                   <div
                     style={{
                       width: 32,
                       height: 32,
-                      borderRadius: 8,
-                      background: on ? 'white' : 'var(--cream)',
-                      border: '3px solid var(--line)',
+                      borderRadius: '50%',
+                      background: on ? 'var(--success)' : 'var(--glass-subtle)',
+                      border: '1px solid var(--line)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontWeight: 900,
-                      fontSize: 18,
-                      color: 'var(--mint-deep)',
+                      fontWeight: 800,
+                      fontSize: 16,
+                      color: on ? 'white' : 'var(--ink-2)',
+                      flexShrink: 0,
                     }}
                   >
                     {on ? '✓' : ''}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 900, fontSize: 15 }}>{it.label}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--ink-2)' }}>{it.sub}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{it.label}</div>
+                    <div style={{ fontSize: 12, color: 'var(--ink-2)' }}>{it.sub}</div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -149,7 +129,7 @@ export function EndConfirmScreen() {
           <div style={{ display: 'flex', gap: 12 }}>
             <button
               type="button"
-              className="btn-plush ghost"
+              className="btn"
               style={{ flex: 1 }}
               onClick={() => store.setScreen('encounter')}
             >
@@ -157,7 +137,7 @@ export function EndConfirmScreen() {
             </button>
             <button
               type="button"
-              className="btn-plush primary"
+              className="btn btn-primary"
               style={{ flex: 1.4 }}
               onClick={() => store.setScreen('debrief')}
             >

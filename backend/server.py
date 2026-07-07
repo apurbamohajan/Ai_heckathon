@@ -206,6 +206,7 @@ import logging
 
 from fastapi import Request
 from fastapi.responses import StreamingResponse
+import httpx
 
 try:
     from anthropic import Anthropic, AsyncAnthropic  # type: ignore
@@ -1380,6 +1381,74 @@ async def patient_stream(req: PatientStreamRequest):
             "X-Accel-Buffering": "no",
         },
     )
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Mental health screening proxy (Google Gemini 3.5 Flash)
+# ───────────────────────────────────────────────────────────────────────────
+# Frontend posts: { system: string, transcript: string }
+# If GEMINI_API_KEY is present the server forwards to Gemini and parses
+# strict JSON from the model's text output. Otherwise returns 501 so the
+# frontend can fail fast until the key is configured.
+
+
+class MentalHealthRequest(BaseModel):
+    system: str
+    transcript: str
+
+
+@app.post("/agent/mental-health")
+async def mental_health(req: MentalHealthRequest):
+    gkey = os.environ.get("GEMINI_API_KEY")
+    if not gkey:
+        return JSONResponse({"error": "GEMINI_API_KEY not configured on server"}, status_code=501)
+
+    prompt_text = req.system + "\n\nTranscript:\n" + req.transcript + "\n\nReturn STRICT JSON only."
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"
+    headers = {"Content-Type": "application/json", "x-goog-api-key": gkey}
+    body = {"contents": [{"parts": [{"text": prompt_text}]}]}
+    if gkey.startswith("ya29."):
+        headers["Authorization"] = f"Bearer {gkey}"
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            r = await client.post(url, json=body, headers=headers)
+    except Exception as e:
+        _agent_log.exception("mental-health: request to Gemini failed")
+        raise HTTPException(status_code=502, detail=f"gen ai request failed: {e}")
+
+    if r.status_code != 200:
+        _agent_log.warning("mental-health: non-200 from Gemini: %s", r.text[:200])
+        raise HTTPException(status_code=502, detail=f"gen ai returned {r.status_code}: {r.text}")
+
+    data = r.json()
+    # Extract candidate text from the generateContent response shape:
+    # {"candidates": [{"content": {"parts": [{"text": "..."}]}}]}
+    text = ""
+    if isinstance(data, dict):
+        candidates = data.get("candidates")
+        if isinstance(candidates, list) and candidates:
+            content = candidates[0].get("content") or {}
+            parts = content.get("parts") or []
+            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+    if not text:
+        text = json.dumps(data)
+
+    # Strip ``` fences and leading 'json' markers
+    raw = text.strip()
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+        if raw.lower().startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+
+    try:
+        parsed = json.loads(raw)
+    except Exception as e:
+        _agent_log.warning("mental-health: malformed JSON from model: %s", raw[:200])
+        raise HTTPException(status_code=502, detail=f"mental-health model returned malformed JSON: {e}")
+
+    return JSONResponse(parsed)
 
 
 # ───────────────────────────────────────────────────────────────────────────

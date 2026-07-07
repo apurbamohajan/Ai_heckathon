@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { Doodle, DoodleScatter } from './primitives';
+import { motion } from 'framer-motion';
 import { store } from '../game/store';
+import { IconStethoscope, IconHeart, IconBrain, IconActivity } from './primitives';
 
 export function SplashScreen() {
-  // Click anywhere or hit space → onboarding (first run) or home (returning).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.code === 'Enter') {
@@ -16,160 +16,239 @@ export function SplashScreen() {
   }, []);
 
   return (
-    <div
-      className="screen bg-peach-soft"
-      onClick={() => store.beginFromSplash()}
-      style={{ position: 'relative', cursor: 'pointer' }}
-    >
-      <DoodleScatter
-        items={[
-          { kind: 'cloud', x: 60, y: 70, size: 100, color: '#fff' },
-          { kind: 'cloud', x: 720, y: 110, size: 130, color: '#fff' },
-          { kind: 'cloud', x: 920, y: 60, size: 90, color: '#fff' },
-          { kind: 'sparkle', x: 180, y: 200, size: 32, color: '#FFD86B' },
-          { kind: 'sparkle', x: 880, y: 240, size: 28, color: '#fff' },
-          { kind: 'star', x: 90, y: 480, size: 38, color: '#FFD86B', anim: 'wobble' },
-          { kind: 'pill', x: 800, y: 500, size: 70, anim: 'wobble' },
-          { kind: 'heart', x: 130, y: 600, size: 40, color: '#F47A92' },
-        ]}
-      />
-
-      {/* Sun */}
-      <div
-        style={{ position: 'absolute', top: 38, left: '50%', transform: 'translateX(-50%)' }}
-        className="floaty"
-      >
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <g>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <rect
-                key={i}
-                x="58"
-                y="6"
-                width="4"
-                height="14"
-                rx="2"
-                fill="#F5B73D"
-                stroke="var(--line)"
-                strokeWidth="2.5"
-                transform={`rotate(${i * 30} 60 60)`}
-              />
-            ))}
-          </g>
-          <circle cx="60" cy="60" r="32" fill="#FFD86B" stroke="var(--line)" strokeWidth="4" />
-          <circle cx="50" cy="58" r="2.5" fill="var(--line)" />
-          <circle cx="70" cy="58" r="2.5" fill="var(--line)" />
-          <path d="M 50 68 Q 60 76 70 68" stroke="var(--line)" strokeWidth="3" fill="none" strokeLinecap="round" />
-        </svg>
-      </div>
-
-      {/* Center stage */}
+    <div className="screen" style={{ position: 'relative', cursor: 'pointer', overflow: 'hidden' }}>
+      {/* Ambient background with mesh gradient */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 32,
+          background: `
+            radial-gradient(circle at 15% 25%, rgba(99, 102, 241, 0.15), transparent 35%),
+            radial-gradient(circle at 85% 75%, rgba(0, 212, 255, 0.12), transparent 35%),
+            radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08), transparent 40%)
+          `,
+        }}
+      />
+
+      {/* Floating medical icons with subtle animation */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.06,
+          pointerEvents: 'none',
         }}
       >
-        <div className="popin" style={{ animationDelay: '.05s' }}>
-          <div
-            style={{
-              fontFamily: 'Nunito',
-              fontWeight: 900,
-              fontSize: 168,
-              lineHeight: 1,
-              letterSpacing: '-0.04em',
-              color: 'var(--cream)',
-              WebkitTextStroke: '5px var(--line)',
-              paintOrder: 'stroke fill',
-              textShadow: '0 8px 0 var(--line)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-            }}
-          >
-            med
-            <span style={{ color: 'var(--peach)' }}>kit</span>
-            <span className="wobble" style={{ display: 'inline-block', marginLeft: 8, marginBottom: 30 }}>
-              <Doodle kind="cross" size={86} color="#F47A92" />
-            </span>
-          </div>
-        </div>
-
         <div
-          className="popin"
+          className="float"
           style={{
-            animationDelay: '.15s',
-            fontSize: 24,
-            fontWeight: 700,
-            color: 'var(--ink)',
-            background: 'white',
-            padding: '10px 22px',
-            border: '3px solid var(--line)',
-            borderRadius: 'var(--r-pill)',
-            boxShadow: 'var(--plush-tiny)',
+            position: 'absolute',
+            top: '15%',
+            left: '10%',
+            animationDelay: '0s',
           }}
         >
-          The clinic that lets you make every mistake before they count.
+          <IconStethoscope size={48} color="var(--indigo)" />
         </div>
-
-        <div className="popin breathe" style={{ animationDelay: '.3s', marginTop: 24 }}>
-          <button
-            type="button"
-            className="btn-plush primary"
-            style={{ fontSize: 22, padding: '18px 38px' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              store.beginFromSplash();
-            }}
-          >
-            ▸ Tap to begin
-          </button>
-        </div>
-
         <div
-          className="popin"
+          className="float"
           style={{
-            animationDelay: '.45s',
-            fontSize: 13,
-            color: 'var(--ink-2)',
-            fontWeight: 700,
-            marginTop: 8,
+            position: 'absolute',
+            top: '70%',
+            right: '15%',
+            animationDelay: '1s',
           }}
         >
-          press{' '}
-          <span
-            style={{
-              background: 'white',
-              padding: '2px 10px',
-              border: '2.5px solid var(--line)',
-              borderRadius: 8,
-              boxShadow: '0 2px 0 var(--line)',
-            }}
-          >
-            space
-          </span>{' '}
-          to continue
+          <IconHeart size={56} color="var(--rose)" />
+        </div>
+        <div
+          className="float"
+          style={{
+            position: 'absolute',
+            bottom: '20%',
+            left: '20%',
+            animationDelay: '2s',
+          }}
+        >
+          <IconBrain size={42} color="var(--violet)" />
+        </div>
+        <div
+          className="float"
+          style={{
+            position: 'absolute',
+            top: '30%',
+            right: '25%',
+            animationDelay: '1.5s',
+          }}
+        >
+          <IconActivity size={50} color="var(--cyan)" />
         </div>
       </div>
 
-      {/* Foreground hill */}
-      <svg
-        style={{ position: 'absolute', bottom: -2, left: 0, width: '100%' }}
-        viewBox="0 0 1200 120"
-        preserveAspectRatio="none"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="glass-panel"
+        style={{
+          width: 'min(1000px, 90%)',
+          margin: '0 auto',
+          marginTop: '15vh',
+          padding: '48px 40px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+        onClick={() => store.beginFromSplash()}
       >
-        <path
-          d="M 0 60 Q 300 0 600 50 T 1200 50 V 120 H 0 Z"
-          fill="#A8E5C8"
-          stroke="var(--line)"
-          strokeWidth="4"
-        />
-      </svg>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 32,
+          }}
+        >
+          {/* Logo/Brand */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                marginBottom: 8,
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: 'var(--glow-strong)',
+                }}
+              >
+                <IconStethoscope size={32} color="white" />
+              </div>
+              <h1
+                style={{
+                  fontSize: 'clamp(36px, 5vw, 56px)',
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                }}
+              >
+                auralis<span style={{ color: 'var(--indigo)' }}>care</span>
+              </h1>
+            </div>
+            <p
+              style={{
+                fontSize: 16,
+                color: 'var(--ink-2)',
+                fontWeight: 500,
+                margin: 0,
+                maxWidth: 500,
+              }}
+            >
+              AI Clinical Operating System
+            </p>
+          </motion.div>
+
+          {/* Main heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <h2
+              style={{
+                fontSize: 'clamp(28px, 4vw, 42px)',
+                fontWeight: 700,
+                lineHeight: 1.2,
+                margin: 0,
+                maxWidth: 600,
+              }}
+            >
+              Premium clinical simulation for the next generation of healthcare teams
+            </h2>
+            <p
+              style={{
+                fontSize: 15,
+                color: 'var(--ink-2)',
+                fontWeight: 500,
+                marginTop: 16,
+                maxWidth: 500,
+              }}
+            >
+              Train through real consultation flow, structured guidance, and AI-grade debriefing in a product experience designed for serious clinical learning.
+            </p>
+          </motion.div>
+
+          {/* Stats grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="grid-4"
+            style={{ width: '100%', maxWidth: 500 }}
+          >
+            <div className="metric">
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--indigo)' }}>240+</div>
+              <div className="metric-label">Cases</div>
+            </div>
+            <div className="metric">
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--violet)' }}>11</div>
+              <div className="metric-label">Specialties</div>
+            </div>
+            <div className="metric">
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--cyan)' }}>22</div>
+              <div className="metric-label">Guidelines</div>
+            </div>
+            <div className="metric">
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--emerald)' }}>7</div>
+              <div className="metric-label">AI Tools</div>
+            </div>
+          </motion.div>
+
+          {/* CTA buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                store.beginFromSplash();
+              }}
+              style={{ fontSize: 16, padding: '14px 28px' }}
+            >
+              Launch Platform
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                store.beginFromSplash();
+              }}
+              style={{ fontSize: 16, padding: '14px 28px' }}
+            >
+              Explore Cases
+            </button>
+          </motion.div>
+        </div>
+      </motion.div>
     </div>
   );
 }

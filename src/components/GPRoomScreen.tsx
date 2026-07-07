@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Doodle, DoodleScatter, PatientFace, TopBar } from './primitives';
+import { TopBar, IconStethoscope, IconFileText } from './primitives';
 import { CASES, getCase } from '../data/cases';
 import { CLINIC_IDS, CLINIC_LABELS, type ClinicId } from '../game/clinic';
-import { store, useGameState, useTweaks } from '../game/store';
+import { store, useGameState } from '../game/store';
 
 const CLINIC_ICON: Record<ClinicId, string> = {
-  'all-specialties': '🌈',
+  'all-specialties': '🌐',
   'internal-medicine': '🩺',
   cardiology: '❤️',
   neurology: '🧠',
@@ -32,26 +32,97 @@ const CLINIC_ICON: Record<ClinicId, string> = {
   'cardiothoracic-vascular-surgery': '🫀',
 };
 
+function ActionPanel({
+  number,
+  title,
+  description,
+  icon,
+  onClick,
+  disabled = false,
+}: {
+  number: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div
+      className={disabled ? '' : 'interactive'}
+      onClick={disabled ? undefined : onClick}
+      style={{
+        background: disabled
+          ? 'var(--glass-subtle)'
+          : 'linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(0, 212, 255, 0.08))',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--r-xl)',
+        padding: 28,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        transition: 'all 200ms ease',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {icon}
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--indigo)',
+          }}
+        >
+          {number}
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ margin: '0 0 8px', fontSize: 22 }}>{title}</h3>
+        <p style={{ margin: 0, fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function GPRoomScreen() {
-  const tweaks = useTweaks();
   const state = useGameState();
   const activeClinic = state.polyclinic.clinic;
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Cases from the active clinic — that's what "Accept the next patient"
-  // will walk through. 'all-specialties' pulls from every roster.
   const clinicCases = useMemo(() => {
     if (activeClinic === 'all-specialties') return CASES;
     return CASES.filter((c) => c.clinic === activeClinic);
   }, [activeClinic]);
 
-  const totalAll = CASES.length;
-  const queueAhead = clinicCases.length;
   const nextId = store.pickNextCaseId() ?? clinicCases[0]?.id ?? CASES[0]?.id;
   const next = nextId ? getCase(nextId) : null;
 
-  // Only show clinics that actually have at least one case in the
-  // catalogue, plus the synthetic "all" option at the top.
   const availableClinics = useMemo(() => {
     return CLINIC_IDS.filter(
       (id) => id === 'all-specialties' || CASES.some((c) => c.clinic === id),
@@ -59,283 +130,129 @@ export function GPRoomScreen() {
   }, []);
 
   return (
-    <div className="screen" style={{ background: 'var(--cream)', position: 'relative' }}>
+    <div className="screen" style={{ background: 'transparent', position: 'relative' }}>
       <TopBar here={1} steps={['Polyclinic', 'GP']} />
 
-      <DoodleScatter
-        items={[
-          { kind: 'sparkle', x: 60, y: 100, size: 22, color: '#FFD86B' },
-          { kind: 'sparkle', x: '88%', y: 130, size: 20, color: '#5AB7F2' },
-          { kind: 'star', x: 80, y: 560, size: 28, color: '#FFD86B', anim: 'wobble' },
-          { kind: 'pill', x: '86%', y: 580, size: 60, anim: 'wobble' },
-        ]}
-      />
-
-      <div style={{ padding: '36px 36px 12px', textAlign: 'center' }}>
-        <span className="chip butter" style={{ marginBottom: 12 }}>
-          🏥 GENERAL PRACTICE
-        </span>
-        <h1 style={{ fontSize: 42, lineHeight: 1.05, marginTop: 12 }}>How would you like to start?</h1>
-        <div
-          style={{
-            fontSize: 16,
-            color: 'var(--ink-2)',
-            fontWeight: 600,
-            marginTop: 8,
-            maxWidth: 620,
-            margin: '8px auto 0',
-          }}
-        >
-          Pick a polyclinic and the next patient on the bench will walk straight in. Or browse the case folder.
+      <div style={{ padding: '24px 24px 40px', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', margin: '0 0 8px' }}>
+            How would you like to start?
+          </h1>
+          <p style={{ fontSize: 15, color: 'var(--ink-2)', margin: 0 }}>
+            Pick a polyclinic and the next patient on the bench will walk straight in. Or browse the case folder.
+          </p>
         </div>
-      </div>
 
-      {/* Clinic picker — collapsible */}
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '12px 36px 4px' }}>
-        <button
-          type="button"
-          onClick={() => setPickerOpen((v) => !v)}
-          className="btn-plush ghost"
-          style={{
-            width: '100%',
-            padding: '14px 18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: 15,
-            fontWeight: 800,
-            background: 'white',
-          }}
-        >
-          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                color: 'var(--ink-2)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Specialty
-            </span>
-            <span>
-              {CLINIC_ICON[activeClinic]} {CLINIC_LABELS[activeClinic]}
-            </span>
-          </span>
-          <span style={{ fontWeight: 800, color: 'var(--ink-2)' }}>{pickerOpen ? '▴' : '▾'}</span>
-        </button>
-
-        {pickerOpen && (
-          <div
-            className="plush"
+        {/* Clinic picker */}
+        <div style={{ marginBottom: 24 }}>
+          <button
+            type="button"
+            onClick={() => setPickerOpen((v) => !v)}
+            className="btn"
             style={{
-              marginTop: 8,
-              padding: 12,
-              background: 'white',
+              width: '100%',
+              padding: '14px 20px',
               display: 'flex',
-              gap: 8,
-              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: 15,
             }}
           >
-            {availableClinics.map((id) => {
-              const isActive = activeClinic === id;
-              return (
-                <span
-                  key={id}
-                  className={`chip ${isActive ? 'butter' : ''}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    store.setPolyclinicClinic(id);
-                    setPickerOpen(false);
-                  }}
-                >
-                  {CLINIC_ICON[id]} {CLINIC_LABELS[id]}
-                </span>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 28,
-          padding: '20px 36px 40px',
-          maxWidth: 1080,
-          margin: '0 auto',
-        }}
-      >
-        {/* LEFT — accept next patient (clinic-aware) */}
-        <div
-          className={`tap plush-lg popin ${next ? 'breathe' : ''}`}
-          onClick={() => next && store.acceptNextPatient()}
-          style={{
-            background: 'var(--mint)',
-            padding: 32,
-            position: 'relative',
-            transform: 'rotate(-0.8deg)',
-            animationDelay: '.05s',
-            opacity: next ? 1 : 0.55,
-            cursor: next ? 'pointer' : 'not-allowed',
-          }}
-        >
-          <div style={{ position: 'absolute', top: -14, left: 24 }} className="chip rose">
-            01 · ACCEPT
-          </div>
-          <div className="floaty" style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-            <div
-              className="plush"
-              style={{
-                width: 160,
-                height: 160,
-                background: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {next ? (
-                <PatientFace
-                  style={tweaks.avatarStyle}
-                  skin={next.skin}
-                  hair={next.hair}
-                  size={130}
-                  mood={next.mood}
-                  accessory={next.accessory}
-                />
-              ) : (
-                <span style={{ fontSize: 42 }}>{CLINIC_ICON[activeClinic]}</span>
-              )}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span
                 style={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'var(--ink-2)',
                 }}
               >
-                <Doodle kind="sparkle" size={22} color="#FFD86B" />
+                Specialty
               </span>
-            </div>
-          </div>
-          <h2 style={{ fontSize: 28, lineHeight: 1.1, textAlign: 'center', marginBottom: 8 }}>
-            Accept the next patient
-          </h2>
-          <div
-            style={{
-              fontSize: 14,
-              color: 'var(--ink-2)',
-              fontWeight: 600,
-              textAlign: 'center',
-              marginBottom: 16,
-              minHeight: 42,
-            }}
-          >
-            {next
-              ? `${next.name} walks in next — straight into the consultation.`
-              : `No cases queued for ${CLINIC_LABELS[activeClinic]} yet.`}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-            {next && (
-              <>
-                <span className="chip" style={{ background: 'white' }}>
-                  {next.name.split(' ')[0]} · {next.age}
-                </span>
-                <span className="chip rose">{next.cond}</span>
-              </>
-            )}
-            <span className="chip butter">
-              {CLINIC_ICON[activeClinic]} {queueAhead} in {CLINIC_LABELS[activeClinic]}
+              <span>
+                {CLINIC_ICON[activeClinic]} {CLINIC_LABELS[activeClinic]}
+              </span>
             </span>
-          </div>
-        </div>
+            <span style={{ fontWeight: 800, color: 'var(--ink-2)' }}>{pickerOpen ? '▴' : '▾'}</span>
+          </button>
 
-        {/* RIGHT — browse charts */}
-        <div
-          className="tap plush-lg popin"
-          onClick={() => store.setScreen('library')}
-          style={{
-            background: 'var(--sky)',
-            padding: 32,
-            position: 'relative',
-            transform: 'rotate(0.8deg)',
-            animationDelay: '.15s',
-          }}
-        >
-          <div style={{ position: 'absolute', top: -14, left: 24 }} className="chip butter">
-            02 · BROWSE
-          </div>
-          <div className="floaty" style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+          {pickerOpen && (
             <div
-              className="plush"
+              className="card"
               style={{
-                width: 160,
-                height: 160,
-                background: 'white',
+                marginTop: 12,
+                padding: 16,
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                flexWrap: 'wrap',
+                gap: 8,
               }}
             >
-              <ChartFolder />
+              {availableClinics.map((id) => {
+                const isActive = activeClinic === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => {
+                      store.setPolyclinicClinic(id);
+                      setPickerOpen(false);
+                    }}
+                    className="chip"
+                    style={{
+                      cursor: 'pointer',
+                      background: isActive ? 'var(--glass-highlight)' : undefined,
+                    }}
+                  >
+                    {CLINIC_ICON[id]} {CLINIC_LABELS[id]}
+                  </button>
+                );
+              })}
             </div>
-          </div>
-          <h2 style={{ fontSize: 28, lineHeight: 1.1, textAlign: 'center', marginBottom: 8 }}>
-            Pick from the charts
-          </h2>
-          <div
-            style={{
-              fontSize: 14,
-              color: 'var(--ink-2)',
-              fontWeight: 600,
-              textAlign: 'center',
-              marginBottom: 16,
-              minHeight: 42,
-            }}
+          )}
+        </div>
+
+        {/* Action panels */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 20,
+          }}
+        >
+          <ActionPanel
+            number="01 · ACCEPT"
+            title="Accept the next patient"
+            description={
+              next
+                ? `${next.name} walks in next — straight into the consultation.`
+                : `No cases queued for ${CLINIC_LABELS[activeClinic]} yet.`
+            }
+            icon={<IconStethoscope size={20} color="white" />}
+            onClick={() => next && store.acceptNextPatient()}
+            disabled={!next}
+          />
+
+          <ActionPanel
+            number="02 · BROWSE"
+            title="Pick from the charts"
+            description="Open the case folder, filter by specialty or red-flag, attempted ribbons on completed."
+            icon={<IconFileText size={20} color="white" />}
+            onClick={() => store.setScreen('library')}
+          />
+        </div>
+
+        {/* Back button */}
+        <div style={{ marginTop: 32 }}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => store.setScreen('mode')}
           >
-            Open the case folder, filter by specialty or red-flag, attempted ribbons on completed.
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className="chip" style={{ background: 'white' }}>
-              📁 {totalAll} cases
-            </span>
-            <span className="chip butter">filterable</span>
-          </div>
+            ← Back to corridor
+          </button>
         </div>
       </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 36 }}>
-        <button
-          type="button"
-          className="btn-plush ghost"
-          style={{ fontSize: 14, padding: '10px 18px' }}
-          onClick={() => store.setScreen('mode')}
-        >
-          ← Back to corridor
-        </button>
-      </div>
     </div>
-  );
-}
-
-function ChartFolder() {
-  const stroke = 'var(--line)';
-  return (
-    <svg width="120" height="120" viewBox="0 0 120 120">
-      <rect x="14" y="22" width="92" height="14" rx="4" fill="#FFD86B" stroke={stroke} strokeWidth="3.5" />
-      <rect x="10" y="30" width="100" height="78" rx="10" fill="#FFB68A" stroke={stroke} strokeWidth="4" />
-      <rect x="20" y="42" width="80" height="60" rx="6" fill="white" stroke={stroke} strokeWidth="3" />
-      <line x1="30" y1="56" x2="86" y2="56" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-      <line x1="30" y1="68" x2="78" y2="68" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-      <line x1="30" y1="80" x2="70" y2="80" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-      <circle cx="92" cy="84" r="9" fill="#F47A92" stroke={stroke} strokeWidth="3" />
-      <text x="92" y="88" textAnchor="middle" fontFamily="Nunito" fontWeight="900" fontSize="11" fill="white">
-        +
-      </text>
-    </svg>
   );
 }

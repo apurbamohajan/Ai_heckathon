@@ -1,8 +1,92 @@
 import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import { store } from '../game/store';
 
-// ─── PATIENT FACE ───────────────────────────────────────────
-// style: 'cute' | 'portrait' | 'animal' | 'initials'
+/* ── Premium Medical Icons ────────────────────────────────────────────────── */
+
+export function IconStethoscope({ size = 24, color = 'var(--indigo)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12a2 2 0 0 1 2-2 8 8 0 0 1 16 0 2 2 0 0 1-2 2" />
+      <path d="M12 12V6" />
+      <path d="M8 12V6a4 4 0 0 1 8 0v6" />
+    </svg>
+  );
+}
+
+export function IconHeart({ size = 24, color = 'var(--rose)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+export function IconBrain({ size = 24, color = 'var(--violet)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a8 8 0 0 0-8 8c0 2.2.8 4.2 2 5.7V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3a7.9 7.9 0 0 0 2-5.7 8 8 0 0 0-8-8z" />
+      <path d="M12 12v8" />
+      <path d="M8 16h8" />
+    </svg>
+  );
+}
+
+export function IconActivity({ size = 24, color = 'var(--cyan)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  );
+}
+
+export function IconMicrophone({ size = 24, color = 'var(--indigo)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+    </svg>
+  );
+}
+
+export function IconUser({ size = 24, color = 'var(--ink)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+export function IconFileText({ size = 24, color = 'var(--ink-2)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <line x1="10" y1="9" x2="8" y2="9" />
+    </svg>
+  );
+}
+
+export function IconShield({ size = 24, color = 'var(--emerald)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+export function IconZap({ size = 24, color = 'var(--amber)' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 8 22 15 10 9 10" />
+    </svg>
+  );
+}
+
+/* ── Patient Avatar (Premium) ─────────────────────────────────────────────── */
 
 export type FaceMood = 'neutral' | 'happy' | 'sad' | 'sick' | 'worried';
 export type FaceStyle = 'cute' | 'portrait' | 'animal' | 'initials';
@@ -35,15 +119,15 @@ export function PatientFace({
           width: size,
           height: size,
           borderRadius: '50%',
-          background: hair,
+          background: `radial-gradient(circle, ${hair}, ${hair}dd)`,
           color: 'white',
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: size * 0.36,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: 'var(--stroke-thick) solid var(--line)',
-          boxShadow: 'var(--plush-sm)',
+          border: `1px solid var(--line)`,
+          boxShadow: 'var(--glow)',
         }}
       >
         {initials}
@@ -63,13 +147,7 @@ interface CuteFaceProps {
   accessory?: FaceAccessory;
 }
 
-export function CuteFace({
-  size = 120,
-  skin = '#FFD8B5',
-  hair = '#3B2A1F',
-  mood = 'neutral',
-  accessory,
-}: CuteFaceProps) {
+export function CuteFace({ size = 120, skin = '#FFD8B5', hair = '#3B2A1F', mood = 'neutral', accessory }: CuteFaceProps) {
   const stroke = 'var(--line)';
   const mouthByMood: Record<FaceMood, ReactNode> = {
     neutral: <path d="M 80 132 Q 100 142 120 132" stroke={stroke} strokeWidth="4" fill="none" strokeLinecap="round" />,
@@ -80,9 +158,17 @@ export function CuteFace({
   };
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
-      <ellipse cx="100" cy="86" rx="74" ry="78" fill={hair} />
-      <circle cx="100" cy="104" r="62" fill={skin} stroke={stroke} strokeWidth="4" />
-      <path d="M 42 78 Q 60 38 100 40 Q 140 38 158 78 Q 130 60 100 64 Q 70 60 42 78 Z" fill={hair} />
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <ellipse cx="100" cy="86" rx="74" ry="78" fill={hair} filter="url(#glow)" />
+      <circle cx="100" cy="104" r="62" fill={skin} stroke={stroke} strokeWidth="2" />
       <ellipse cx="74" cy="118" rx="9" ry="6" fill="#FF9DAA" opacity="0.7" />
       <ellipse cx="126" cy="118" rx="9" ry="6" fill="#FF9DAA" opacity="0.7" />
       <g className="blink" style={{ transformOrigin: '100px 105px' }}>
@@ -92,13 +178,13 @@ export function CuteFace({
       {mouthByMood[mood] ?? mouthByMood.neutral}
       {accessory === 'thermometer' && (
         <g>
-          <rect x="118" y="128" width="34" height="8" rx="4" fill="white" stroke={stroke} strokeWidth="3" transform="rotate(-15 130 132)" />
-          <circle cx="120" cy="135" r="6" fill="#F47A92" stroke={stroke} strokeWidth="3" />
+          <rect x="118" y="128" width="34" height="8" rx="4" fill="white" stroke={stroke} strokeWidth="2" transform="rotate(-15 130 132)" />
+          <circle cx="120" cy="135" r="6" fill="#00d4ff" stroke={stroke} strokeWidth="2" />
         </g>
       )}
       {accessory === 'bandage' && (
         <g transform="translate(100 78) rotate(-12)">
-          <rect x="-22" y="-7" width="44" height="14" rx="6" fill="#FFD3A8" stroke={stroke} strokeWidth="3" />
+          <rect x="-22" y="-7" width="44" height="14" rx="6" fill="#FFD3A8" stroke={stroke} strokeWidth="2" />
           <circle cx="-10" cy="0" r="1.6" fill={stroke} />
           <circle cx="0" cy="0" r="1.6" fill={stroke} />
           <circle cx="10" cy="0" r="1.6" fill={stroke} />
@@ -112,13 +198,13 @@ export function PortraitFace({ size = 120, skin = '#FFD8B5', hair = '#3B2A1F' }:
   const stroke = 'var(--line)';
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
-      <rect x="10" y="10" width="180" height="180" rx="20" fill="#FFF1DA" stroke={stroke} strokeWidth="4" />
+      <rect x="10" y="10" width="180" height="180" rx="20" fill="var(--glass)" stroke={stroke} strokeWidth="2" />
       <circle cx="100" cy="160" r="60" fill={hair} />
-      <ellipse cx="100" cy="100" rx="46" ry="54" fill={skin} stroke={stroke} strokeWidth="3" />
-      <path d="M 56 86 Q 70 50 100 50 Q 130 50 144 86 Q 132 76 100 74 Q 68 76 56 86" fill={hair} />
+      <ellipse cx="100" cy="100" rx="46" ry="54" fill={skin} stroke={stroke} strokeWidth="2" />
+      <path d="M 56 86 Q 70 50 100 50 Q 130 50 144 86 Q 132 76 100 74 Q 68 76 56 86 Z" fill={hair} />
       <circle cx="86" cy="102" r="3" fill={stroke} />
       <circle cx="114" cy="102" r="3" fill={stroke} />
-      <path d="M 90 130 Q 100 138 110 130" stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M 90 130 Q 100 138 110 130" stroke={stroke} strokeWidth="2" fill="none" strokeLinecap="round" />
     </svg>
   );
 }
@@ -127,171 +213,22 @@ export function AnimalFace({ size = 120 }: { size?: number }) {
   const stroke = 'var(--line)';
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
-      <circle cx="62" cy="68" r="22" fill="#C58F5E" stroke={stroke} strokeWidth="3" />
-      <circle cx="138" cy="68" r="22" fill="#C58F5E" stroke={stroke} strokeWidth="3" />
-      <circle cx="62" cy="68" r="10" fill="#9C6B43" />
-      <circle cx="138" cy="68" r="10" fill="#9C6B43" />
-      <circle cx="100" cy="108" r="68" fill="#D9A574" stroke={stroke} strokeWidth="4" />
+      <circle cx="62" cy="68" r="22" fill="#C58F5E" stroke={stroke} strokeWidth="2" />
+      <circle cx="138" cy="68" r="22" fill="#C58F5E" stroke={stroke} strokeWidth="2" />
+      <circle cx="100" cy="108" r="68" fill="#D9A574" stroke={stroke} strokeWidth="2" />
       <ellipse cx="100" cy="120" rx="34" ry="26" fill="#FFE6CC" />
       <circle cx="80" cy="100" r="5" fill={stroke} />
       <circle cx="120" cy="100" r="5" fill={stroke} />
       <ellipse cx="100" cy="118" rx="8" ry="6" fill={stroke} />
-      <path d="M 100 124 Q 100 134 92 134" stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M 100 124 Q 100 134 108 134" stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round" />
     </svg>
   );
 }
 
-// ─── DOODLES ─────────────────────────────────
-export type DoodleKind =
-  | 'pill'
-  | 'cross'
-  | 'heart'
-  | 'bandage'
-  | 'stetho'
-  | 'star'
-  | 'sparkle'
-  | 'cloud'
-  | 'leaf';
+/* ── Navigation Components ─────────────────────────────────────────────────── */
 
-interface DoodleProps {
-  kind: DoodleKind;
-  size?: number;
-  color?: string;
-  style?: CSSProperties;
-}
-
-export function Doodle({ kind, size = 50, color, style }: DoodleProps) {
-  const stroke = 'var(--line)';
-  const defaultColors: Record<DoodleKind, string> = {
-    pill: '#FFB68A',
-    cross: '#F47A92',
-    heart: '#F47A92',
-    bandage: '#FFE0BD',
-    stetho: '#5FCFA0',
-    star: '#FFD86B',
-    sparkle: '#5AB7F2',
-    cloud: '#FFFFFF',
-    leaf: '#A8E5C8',
-  };
-  const c = color ?? defaultColors[kind];
-  switch (kind) {
-    case 'pill':
-      return (
-        <svg width={size} height={size * 0.55} viewBox="0 0 100 55" style={style}>
-          <rect x="3" y="3" width="94" height="49" rx="24" fill={c} stroke={stroke} strokeWidth="3.5" />
-          <line x1="50" y1="3" x2="50" y2="52" stroke={stroke} strokeWidth="3.5" />
-          <rect x="3" y="3" width="48" height="49" rx="24" fill="#FFD86B" />
-          <line x1="50" y1="3" x2="50" y2="52" stroke={stroke} strokeWidth="3.5" />
-          <rect x="3" y="3" width="94" height="49" rx="24" fill="none" stroke={stroke} strokeWidth="3.5" />
-        </svg>
-      );
-    case 'cross':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path
-            d="M 38 8 H 62 Q 70 8 70 16 V 38 H 92 Q 100 38 100 46 V 62 Q 100 70 92 70 H 70 V 92 Q 70 100 62 100 H 38 Q 30 100 30 92 V 70 H 8 Q 0 70 0 62 V 46 Q 0 38 8 38 H 30 V 16 Q 30 8 38 8 Z"
-            transform="translate(0 -3)"
-            fill={c}
-            stroke={stroke}
-            strokeWidth="4"
-          />
-        </svg>
-      );
-    case 'heart':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path
-            d="M 50 88 C 14 64 8 38 26 26 C 38 18 50 26 50 38 C 50 26 62 18 74 26 C 92 38 86 64 50 88 Z"
-            fill={c}
-            stroke={stroke}
-            strokeWidth="4"
-          />
-        </svg>
-      );
-    case 'bandage':
-      return (
-        <svg width={size} height={size * 0.5} viewBox="0 0 100 50" style={style}>
-          <rect x="4" y="4" width="92" height="42" rx="14" fill={c} stroke={stroke} strokeWidth="3.5" transform="rotate(-8 50 25)" />
-          <g transform="rotate(-8 50 25)">
-            <circle cx="32" cy="25" r="2" fill={stroke} />
-            <circle cx="46" cy="25" r="2" fill={stroke} />
-            <circle cx="60" cy="25" r="2" fill={stroke} />
-            <circle cx="38" cy="18" r="2" fill={stroke} />
-            <circle cx="54" cy="18" r="2" fill={stroke} />
-          </g>
-        </svg>
-      );
-    case 'stetho':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path d="M 25 20 V 50 Q 25 70 50 70 Q 75 70 75 50 V 20" fill="none" stroke={stroke} strokeWidth="5" strokeLinecap="round" />
-          <path d="M 50 70 V 80" stroke={stroke} strokeWidth="5" />
-          <circle cx="50" cy="86" r="10" fill={c} stroke={stroke} strokeWidth="4" />
-          <circle cx="25" cy="20" r="6" fill="white" stroke={stroke} strokeWidth="4" />
-          <circle cx="75" cy="20" r="6" fill="white" stroke={stroke} strokeWidth="4" />
-        </svg>
-      );
-    case 'star':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path
-            d="M 50 8 L 62 38 L 92 42 L 70 62 L 76 92 L 50 76 L 24 92 L 30 62 L 8 42 L 38 38 Z"
-            fill={c}
-            stroke={stroke}
-            strokeWidth="4"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-    case 'sparkle':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path
-            d="M 50 6 L 56 44 L 94 50 L 56 56 L 50 94 L 44 56 L 6 50 L 44 44 Z"
-            fill={c}
-            stroke={stroke}
-            strokeWidth="3.5"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-    case 'cloud':
-      return (
-        <svg width={size} height={size * 0.66} viewBox="0 0 100 66" style={style}>
-          <path
-            d="M 22 50 Q 4 50 4 36 Q 4 22 20 22 Q 22 8 38 8 Q 52 8 56 20 Q 78 14 86 30 Q 96 30 96 42 Q 96 56 80 56 H 28 Q 22 56 22 50 Z"
-            fill={c}
-            stroke={stroke}
-            strokeWidth="4"
-          />
-        </svg>
-      );
-    case 'leaf':
-      return (
-        <svg width={size} height={size} viewBox="0 0 100 100" style={style}>
-          <path d="M 12 88 Q 20 28 88 12 Q 76 76 12 88 Z" fill={c} stroke={stroke} strokeWidth="4" />
-          <path d="M 22 78 Q 50 50 80 30" fill="none" stroke={stroke} strokeWidth="3" />
-        </svg>
-      );
-    default:
-      return null;
-  }
-}
-
-// ─── BREADCRUMB ──────────────────────────────
 import type { Screen } from '../game/types';
-
 const LABEL_TO_SCREEN: Record<string, Screen> = {
-  Polyclinic: 'mode',
-  GP: 'gpRoom',
-  Case: 'library',
-  Brief: 'brief',
-  Encounter: 'encounter',
-  Wrap: 'endConfirm',
-  Debrief: 'debrief',
-  Profile: 'home',
-  History: 'history',
+  Polyclinic: 'mode', GP: 'gpRoom', Case: 'library', Brief: 'brief', Encounter: 'encounter', Wrap: 'endConfirm', Debrief: 'debrief', Profile: 'home', History: 'history',
 };
 
 interface BreadcrumbProps {
@@ -309,16 +246,11 @@ export function Breadcrumb({ steps, here }: BreadcrumbProps) {
         return (
           <Fragment key={i}>
             {isHere ? (
-              <span className="here">{s}</span>
+              <span className="current">{s}</span>
             ) : (
               <span
                 onClick={clickable ? () => store.setScreen(target) : undefined}
-                style={{
-                  cursor: clickable ? 'pointer' : 'default',
-                  textDecoration: clickable ? 'underline' : 'none',
-                  textDecorationStyle: 'dotted',
-                  textUnderlineOffset: 3,
-                }}
+                style={{ cursor: clickable ? 'pointer' : 'default' }}
               >
                 {s}
               </span>
@@ -331,72 +263,56 @@ export function Breadcrumb({ steps, here }: BreadcrumbProps) {
   );
 }
 
-// ─── TOP BAR ─────────────────────────────────
 interface TopBarProps {
   here?: number;
   steps?: string[];
   showProfile?: boolean;
+  onBack?: () => void;
 }
 
-export function TopBar({
-  here = 0,
-  steps = ['Polyclinic'],
-  showProfile = true,
-}: TopBarProps) {
+export function TopBar({ here = 0, steps = ['Polyclinic'], showProfile = true, onBack }: TopBarProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '14px 22px',
-        borderBottom: '3px solid var(--line)',
-        background: 'white',
-      }}
-    >
+    <div className="nav">
       <span
-        className="tap"
-        onClick={() => store.setScreen('splash')}
+        className="interactive"
+        onClick={() => (onBack ? onBack() : store.setScreen('splash'))}
         title="Back to start"
-        style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
+        style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--ink)' }}
       >
-        <Wordmark size={28} />
+        <Wordmark size={24} />
       </span>
       <Breadcrumb steps={steps} here={here} />
       {showProfile ? (
         <div
-          className="tap"
+          className="interactive"
           onClick={() => store.setScreen('home')}
           title="Open profile"
-          style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink-2)' }}
         >
-          <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-2)' }}>Bedirhan</span>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>Dr. Bedirhan</span>
           <div
             style={{
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               borderRadius: '50%',
-              background: 'var(--mint)',
-              border: '3px solid var(--line)',
-              boxShadow: '0 2px 0 var(--line)',
+              background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 900,
-              fontSize: 14,
+              fontWeight: 700,
+              fontSize: 12,
+              color: 'white',
+              boxShadow: 'var(--glow)',
             }}
           >
             B
           </div>
         </div>
-      ) : (
-        <div style={{ width: 80 }} />
-      )}
+      ) : <div style={{ width: 80 }} />}
     </div>
   );
 }
 
-// ─── WORDMARK ────────────────────────────────
 interface WordmarkProps {
   size?: number;
   dark?: boolean;
@@ -409,105 +325,139 @@ export function Wordmark({ size = 36, dark = false }: WordmarkProps) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 8,
-        fontFamily: 'Nunito',
-        fontWeight: 900,
+        fontFamily: 'Inter',
+        fontWeight: 800,
         fontSize: size,
         color: dark ? 'white' : 'var(--ink)',
-        letterSpacing: '-0.02em',
+        letterSpacing: '-0.03em',
       }}
     >
       <span style={{ position: 'relative', display: 'inline-block' }}>
-        med
-        <span
-          style={{
-            color: 'var(--peach-deep)',
-            textShadow: dark ? 'none' : '0 2px 0 var(--line)',
-            WebkitTextStroke: dark ? '0' : '2px var(--line)',
-            paintOrder: 'stroke fill',
-          }}
-        >
-          kit
-        </span>
-        <span
-          style={{
-            position: 'absolute',
-            right: -size * 0.42,
-            top: size * 0.05,
-            width: size * 0.34,
-            height: size * 0.34,
-            display: 'inline-block',
-          }}
-        >
-          <Doodle kind="cross" size={size * 0.34} color="#F47A92" />
-        </span>
+        auralis<span style={{ color: 'var(--indigo)', marginLeft: 4 }}>care</span>
       </span>
     </div>
   );
 }
 
-// ─── DOODLE SCATTER ──────────────────────────
-export interface DoodleScatterItem {
-  kind: DoodleKind;
-  x: number | string;
-  y: number | string;
-  size?: number;
-  color?: string;
-  rot?: number;
-  opacity?: number;
-  anim?: 'floaty' | 'wobble' | 'drift' | 'breathe';
-}
+/* ── Premium UI Components ───────────────────────────────────────────────────── */
 
-export function DoodleScatter({ items }: { items: DoodleScatterItem[] }) {
+export function PremiumCard({
+  children,
+  title,
+  subtitle,
+  icon,
+  glow = false,
+  style,
+}: {
+  children: ReactNode;
+  title?: string;
+  subtitle?: string;
+  icon?: ReactNode;
+  glow?: boolean;
+  style?: CSSProperties;
+}) {
   return (
     <div
+      className="card"
       style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        overflow: 'hidden',
+        ...style,
+        boxShadow: glow ? 'var(--glow-strong)' : undefined,
       }}
     >
-      {items.map((it, i) => (
-        <div
-          key={i}
-          className={it.anim ?? 'floaty'}
-          style={{
-            position: 'absolute',
-            left: it.x,
-            top: it.y,
-            transform: `rotate(${it.rot ?? 0}deg)`,
-            opacity: it.opacity ?? 1,
-            animationDelay: `${(i * 0.4) % 3}s`,
-          }}
-        >
-          <Doodle kind={it.kind} size={it.size ?? 40} color={it.color} />
+      {(title || icon) && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          {icon && (
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--indigo), var(--violet))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              {icon}
+            </div>
+          )}
+          <div>
+            {title && <h3 style={{ margin: 0 }}>{title}</h3>}
+            {subtitle && (
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-2)', fontWeight: 500 }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-      ))}
+      )}
+      {children}
     </div>
   );
 }
 
-// ─── SPEECH BUBBLE ───────────────────────────
-export function SpeechBubble({ children }: { children: ReactNode }) {
+export function PremiumStat({
+  value,
+  label,
+  sub,
+  color = 'var(--indigo)',
+}: {
+  value: string | number;
+  label: string;
+  sub?: string;
+  color?: string;
+}) {
   return (
-    <div
-      style={{
-        position: 'relative',
-        background: 'white',
-        border: '3.5px solid var(--line)',
-        borderRadius: 'var(--r-md)',
-        padding: '10px 14px',
-        fontWeight: 700,
-        fontSize: 13,
-        lineHeight: 1.35,
-        boxShadow: 'var(--plush-sm)',
-      }}
-    >
-      {children}
-      <svg style={{ position: 'absolute', left: -16, top: 30 }} width="20" height="22" viewBox="0 0 20 22">
-        <path d="M 20 4 L 2 12 L 20 18 Z" fill="white" stroke="var(--line)" strokeWidth="3.5" strokeLinejoin="round" />
-        <line x1="20" y1="4" x2="20" y2="18" stroke="white" strokeWidth="4" />
+    <div className="metric" style={{ textAlign: 'left' }}>
+      <div style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-2)', marginTop: 4 }}>
+        {label}
+      </div>
+      {sub && <div style={{ fontSize: 12, color: 'var(--ink-2)', marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
+export function PremiumProgressRing({
+  value,
+  max,
+  label,
+  color = 'var(--indigo)',
+}: {
+  value: number;
+  max: number;
+  label: string;
+  color?: string;
+}) {
+  const pct = max > 0 ? value / max : 0;
+  const r = 28;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="progress-ring">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="var(--glass-subtle)" strokeWidth="8" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={`${c * pct} ${c}`}
+          transform="rotate(-90 32 32)"
+        />
+        <text x="32" y="38" textAnchor="middle" fontFamily="Inter" fontWeight="800" fontSize="16" fill="var(--ink)">
+          {Math.round(pct * 100)}%
+        </text>
       </svg>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 700 }}>{label}</div>
+        <div style={{ fontSize: 12, color: 'var(--ink-2)' }}>
+          {value}/{max} points
+        </div>
+      </div>
     </div>
   );
 }
