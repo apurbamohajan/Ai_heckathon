@@ -113,26 +113,6 @@ function pickAccessories(
   return out;
 }
 
-/**
- * Low-poly stylized human — same visual language as the room (soft-edge
- * rounded boxes, flat-lit meshStandard). Three explicit poses with manually
- * bent joints, so nobody ever stands in T-pose.
- *
- * Extensions over the original:
- *   - Facial expressions (neutral / pain / anxious / fatigued) drive eyebrow
- *     angle, eye squint, mouth shape.
- *   - Body types (thin / normal / heavy) scale torso + hip width and add a
- *     belly for 'heavy'.
- *   - Hair styles (crop / bald / receding / beard / long / bun / ponytail)
- *     deterministically picked from seed.
- *   - Accessories (glasses / mask / cane / sling) rendered when present.
- *   - Optional head tracking makes the character maintain eye contact with
- *     the active camera while seated.
- *
- * Anatomy uses real-ish proportions:
- *   head ≈ 0.22,  torso 0.56,  legs 0.82,  total ≈ 1.72m standing.
- * Sitting hip at y=0.46 so it lines up with the existing PatientChair cushion.
- */
 export function StylizedCharacter({
   pose,
   walkCycle = 0,
@@ -241,11 +221,7 @@ export function StylizedCharacter({
   const browColor = col.hair === '#ffffff' ? '#c9c4ba' : col.hair;
   const slingRightArm = acc.includes('sling');
 
-  // When the character is scaled down (children, elders) the entire body —
-  // including the seated-hip Y origin — shrinks toward y=0. Without
-  // compensation a child sitting in a chair ends up with their hips below
-  // the cushion ("sinking into the seat"). Lift the root group so the hip
-  // still lands at the unscaled cushion height.
+
   const sittingLift = pose === 'sitting' ? seatHipY * (1 - scale) : 0;
   const rootY = position[1] + sittingLift;
 
@@ -665,8 +641,6 @@ export function StylizedCharacter({
   );
 }
 
-// Warm the module so first mount doesn't suspend. No GLTF needed — all
-// geometry is procedural.
 export const preloadStylizedCharacter = () => {
   void THREE;
 };

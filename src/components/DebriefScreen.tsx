@@ -51,7 +51,7 @@ const RING_COLOR: Record<VerdictBand, string> = {
   'clear-fail': 'var(--error)',
 };
 
-// ── DomainRing — adapted to take real data + verdict ──────────────
+
 
 interface DomainRingProps {
   label: string;
@@ -119,7 +119,6 @@ function formatScore(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
-// ── Criterion — adapted to take CriterionResult + resolved cite ────
 
 interface Cite {
   title: string;

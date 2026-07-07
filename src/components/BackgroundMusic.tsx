@@ -25,9 +25,6 @@ export function BackgroundMusic() {
   const [userMuted, setUserMuted] = useState<boolean>(readMuted);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Lobby = anywhere outside an active encounter. Splash plays too — by
-  // the time the audio context can decode anything the user has clicked
-  // through it, so autoplay is fine there in practice.
   const inSession = screen === 'encounter';
   const shouldPlay = !userMuted && !inSession;
 
@@ -63,8 +60,7 @@ export function BackgroundMusic() {
     };
   }, []);
 
-  // Mirror `shouldPlay` into a ref so the gesture handler installed once
-  // on mount sees the latest value without being torn down on every change.
+
   const shouldPlayRef = useRef(shouldPlay);
   useEffect(() => {
     shouldPlayRef.current = shouldPlay;
