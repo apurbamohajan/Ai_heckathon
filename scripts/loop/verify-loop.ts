@@ -1,21 +1,3 @@
-/**
- * Long-running verification runner for `/loop 20m /medkit-verify-simulation`.
- *
- * Each firing:
- *   1. Runs `npm run verify` (same checks as the verify skill).
- *   2. Appends a single line to `verify.log` in the repo root:
- *        `<ISO8601> PASS` or `<ISO8601> FAIL  <violation-count>`
- *   3. Exits with the same exit code as the underlying check — so if
- *      you chain this with a failure-alert script, it still fires.
- *
- * The log file is the persistent "long-running proof" demonstrated in
- * the submission video: over a multi-hour build, the loop keeps the
- * simulator honest without human supervision.
- *
- * Invoked either directly (`node scripts/loop/verify-loop.ts`) or from
- * the slash command `.claude/commands/medkit-verify-simulation.md`.
- */
-
 import { spawnSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
