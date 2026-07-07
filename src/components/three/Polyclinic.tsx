@@ -11,27 +11,7 @@ import { FloatingVoicePanel } from './FloatingVoicePanel';
 import { StylizedCharacter } from './StylizedCharacter';
 import { parentGenderForId } from '../../voice/patientPersona';
 
-// ───────── World layout — a doctor's private office (muayenehane) ─────────
-//
-// No exam bed. The patient walks in, sits on a patient chair across from
-// the desk, talks to the (seated) doctor, then walks out.
-//
-//            z = −10 ┌─────────────────────────┐       BACK WALL (diplomas)
-//                    │                          │
-//                    │   [bookshelf]   [plant]  │
-//                    │                          │
-//                    │      ┌───────────┐       │   doctor's desk (wide)
-//                    │      │   DESK    │       │   doctor sits behind it
-//                    │      └───────────┘       │
-//                    │                          │
-//                    │       [patient chair]    │   patient sits facing doc
-//                    │                          │
-//            z = −2  ├──────── ⌐ ──────────────┤       door (into corridor)
-//                    │                          │
-//                    │        CORRIDOR          │
-//                    │                          │
-//            z = +8  └──────────────────────────┘       player spawn / entry
-//                    x = −6                  x = +6
+
 
 const ROOM_BACK_Z = -10;
 const ROOM_FRONT_Z = -2;
@@ -42,15 +22,13 @@ const WORLD_RIGHT_X = 4.5;
 const DOOR_HALF_WIDTH = 0.9;
 const DOOR_X = 0;
 
-/** Doctor's desk — centered against the back wall, facing south. */
+
 const DESK_POS: [number, number, number] = [0, 0, ROOM_BACK_Z + 1.5];
-/** Doctor sits behind the desk (closer to the back wall). */
+
 export const DOCTOR_CHAIR_POS: [number, number, number] = [0, 0, ROOM_BACK_Z + 0.55];
-/** Patient chair sits across the desk from the doctor. This is also the
- *  interactable anchor — E / T are triggered near this position. */
+
 export const PATIENT_CHAIR_POS: [number, number, number] = [0, 0, ROOM_BACK_Z + 4.5];
-/** Where the walking patient NPC starts (corridor side of the door) and
- *  where they end up (in the patient chair). */
+
 const PATIENT_SPAWN: [number, number, number] = [DOOR_X, 0, ROOM_FRONT_Z + 4];
 const PATIENT_AT_SEAT: [number, number, number] = [PATIENT_CHAIR_POS[0], 0, PATIENT_CHAIR_POS[2]];
 
@@ -97,14 +75,6 @@ const FRONT_WALL_SEGMENTS = [
   },
 ];
 
-// ───────── Left-wall window opening ─────────
-//
-// The muayenehane window sits on the left wall roughly level with the
-// patient's upper torso. To make it actually LOOK like you can see out
-// of it, we render the wall as four boxes around the opening instead of
-// one solid box, and place a painted sky/skyline backdrop behind the
-// hole. The collider for the left wall stays as a single slab so the
-// player still can't moonwalk through the glass.
 const WINDOW_CENTER_Z = ROOM_BACK_Z + 3.0;
 const WINDOW_CENTER_Y = 1.6;
 const WINDOW_HALF_W = 0.85; // along world z (frame is rotated π/2 on Y)
@@ -115,24 +85,23 @@ const WINDOW_Y_MIN = WINDOW_CENTER_Y - WINDOW_HALF_H;
 const WINDOW_Y_MAX = WINDOW_CENTER_Y + WINDOW_HALF_H;
 
 export const POLYCLINIC_COLLIDERS: WallCollider[] = [
-  // Outer walls
+
   { x: OUTER_CENTER_X, z: WORLD_BACK_Z - 0.15, w: OUTER_WIDTH, d: 0.3 },
   { x: OUTER_CENTER_X, z: CORRIDOR_FRONT_Z + 0.15, w: OUTER_WIDTH, d: 0.3 },
   { x: WORLD_LEFT_X - 0.15, z: OUTER_CENTER_Z, w: 0.3, d: OUTER_DEPTH },
   { x: WORLD_RIGHT_X + 0.15, z: OUTER_CENTER_Z, w: 0.3, d: OUTER_DEPTH },
-  // Exam-room front wall segments (flank the door)
+  
   ...FRONT_WALL_SEGMENTS.map((seg) => ({
     x: seg.center, z: ROOM_FRONT_Z - 0.15, w: seg.length, d: 0.3,
   })),
-  // Furniture colliders
+
   { x: DESK_POS[0], z: DESK_POS[2], w: 2.6, d: 1.0 },
   { x: PATIENT_CHAIR_POS[0], z: PATIENT_CHAIR_POS[2], w: 0.9, d: 0.9 },
-  // Bookshelf on the left
+ 
   { x: WORLD_LEFT_X + 0.6, z: ROOM_BACK_Z + 1.2, w: 1.1, d: 0.5 },
-  // Examination couch — pushed flush against the right wall; long axis along
-  // world-z (parallel to the wall) so rotation is 0.
+
   { x: WORLD_RIGHT_X - 0.55, z: ROOM_BACK_Z + 5.0, w: 0.8, d: 1.9 },
-  // Front corners: skeleton (left) + coat rack (right)
+ 
   { x: WORLD_LEFT_X + 0.7, z: ROOM_FRONT_Z - 0.6, w: 0.6, d: 0.6 },
   { x: WORLD_RIGHT_X - 0.75, z: ROOM_FRONT_Z - 0.6, w: 0.6, d: 0.6 },
 ];
@@ -140,8 +109,7 @@ export const POLYCLINIC_COLLIDERS: WallCollider[] = [
 // ───────── Helpers ─────────
 
 function Floor() {
-  // Parquet planks running along z. Alternating tones + dark seams give the
-  // floor real depth rather than a single flat plane.
+
   const PLANK_WIDTH = 0.45;
   const plankCount = Math.ceil(OUTER_WIDTH / PLANK_WIDTH);
   const planks: JSX.Element[] = [];
@@ -161,7 +129,7 @@ function Floor() {
       </mesh>
     );
   }
-  // Short perpendicular seams every ~2.2m so planks read as individual boards
+ 
   const SEAM_STEP = 2.2;
   const seams: JSX.Element[] = [];
   let seamId = 0;
@@ -203,9 +171,7 @@ function Wall({ position, args, color = PALETTE.wall }: { position: [number, num
   );
 }
 
-/** Wainscot (lower wall panel) + chair-rail trim + crown molding at the ceiling,
- *  rendered as a thin veneer in front of the existing wall. Provides the
- *  classic "muayenehane" two-tone wall without changing collider geometry. */
+
 function WallTrim({
   span,
   axis,
@@ -220,8 +186,7 @@ function WallTrim({
   const WAINSCOT_H = 1.0;
   const WAINSCOT_Y = WAINSCOT_H / 2;
   const CHAIR_RAIL_Y = WAINSCOT_H + 0.02;
-  // Crown molding hugs the ceiling (ceiling is at y=3.0, crown height 0.12
-  // → center at y=2.94, top exactly at the ceiling).
+
   const CROWN_Y = 2.94;
   const length = Math.abs(span[1] - span[0]);
   const center = (span[0] + span[1]) / 2;
@@ -273,10 +238,7 @@ function FloorStripe({ zStart, zEnd, x, color }: { zStart: number; zEnd: number;
   return <>{stripes}</>;
 }
 
-/** Padded armchair for the patient. Rotated so the sitter faces the desk.
- *  Rounded edges everywhere — visually coherent with the stylized
- *  character. No more visible knees-through-apron since the character
- *  now has proper bent legs. */
+
 function PatientChair({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
   const leatherProps = { color: PALETTE.leather, roughness: 0.75, metalness: 0.05 };
   return (
@@ -321,9 +283,6 @@ function PatientChair({ position, rotationY = 0 }: { position: [number, number, 
   );
 }
 
-/** A seated human figure — torso upright, legs forward at 90°, arms on
- *  the thighs. Used for BOTH the patient in the patient chair and the
- *  doctor in the desk chair (different palette). */
 
 function Lighting() {
   return (
@@ -390,10 +349,7 @@ interface MonitorPatient {
   chiefComplaint: string;
 }
 
-/** Canvas texture for the consultation desk monitor. Renders a calm patient
- *  record card (no vitals trace — this isn't an ICU monitor, just the
- *  doctor's desktop EMR application). The card is populated from the
- *  current polyclinic patient and uses the cozy MedKit palette. */
+
 function makeMonitorTexture(patient: MonitorPatient | null): CanvasTexture {
   const w = 512, h = 320;
   const c = document.createElement('canvas');
@@ -522,9 +478,7 @@ function drawChip(ctx: CanvasRenderingContext2D, x: number, y: number, label: st
   ctx.fillText(label, x + padX, y + 15);
 }
 
-/** Wide consultation desk — faces into the room (+z). Houses the computer
- *  archive interactable at its center. The monitor renders an EMR card
- *  populated by the current polyclinic patient. */
+
 function DoctorDesk({
   position,
   patient,
@@ -532,8 +486,7 @@ function DoctorDesk({
   position: [number, number, number];
   patient: MonitorPatient | null;
 }) {
-  // Re-bake whenever the patient identity changes so the monitor reflects
-  // the person actually sitting in the chair. Disposed on each rebuild.
+
   const monitorTex = useMemo(() => makeMonitorTexture(patient), [
     patient?.id,
     patient?.name,
@@ -763,7 +716,7 @@ function DoctorChair({ position, rotationY = 0 }: { position: [number, number, n
   );
 }
 
-/** Bookshelf against a wall — decorative, conveys "muayenehane" vibe. */
+
 function Bookshelf({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -797,11 +750,7 @@ function Bookshelf({ position, rotationY = 0 }: { position: [number, number, num
 }
 
 
-// ───────── Canvas-based realistic textures ─────────
-//
-// For "real-looking" diplomas, anatomy charts, etc., we paint to an offscreen
-// canvas and wrap it as a THREE.CanvasTexture. No external image assets — it
-// all ships with the app and stays fully offline.
+
 
 function makeDiplomaTexture(
   institution: string,
@@ -1028,7 +977,7 @@ function makeAnatomyChartTexture(): CanvasTexture {
   ctx.fill();
   ctx.stroke();
 
-  // ───────── Skeleton hints (thin, behind organs) ─────────
+
   ctx.strokeStyle = 'rgba(60,40,20,0.35)';
   ctx.lineWidth = 1;
   // Spine
@@ -1275,7 +1224,6 @@ function Diploma({
   );
 }
 
-/** A wall-hung group of three framed diplomas on the back wall. */
 function WallDiplomas() {
   return (
     <group>
@@ -1471,9 +1419,7 @@ function WallClock({ position, rotationY = 0 }: { position: [number, number, num
   );
 }
 
-/** Coat rack — tall post with hooks and three hung coats (spare white
- *  doctor coat, wool jacket, patient overcoat). Reads as a real coatstand
- *  with actual clothes on it. */
+
 function CoatRack({ position }: { position: [number, number, number] }) {
   const COATS: Array<{ angle: number; color: string; height: number; width: number; shoulder: string }> = [
     { angle: 0.0, color: '#f8f4ea', height: 1.0, width: 0.5, shoulder: '#e6dfd0' },       // spare white coat
@@ -1544,9 +1490,7 @@ function CoatRack({ position }: { position: [number, number, number] }) {
   );
 }
 
-/** Anatomical teaching skeleton on a wheeled stand. Full-height human
- *  silhouette assembled from simple primitives — reads as a classroom
- *  skeleton, not a horror prop. */
+
 function Skeleton({
   position,
   rotationY = 0,
@@ -1775,9 +1719,7 @@ function Skeleton({
   );
 }
 
-/** Classic examination couch — padded vinyl top, paper roll at the head,
- *  chrome/steel frame with casters, step at the foot. Radiates "real
- *  clinic" vibes without crowding the desk area. */
+
 function ExamBed({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -1857,9 +1799,7 @@ function ExamBed({ position, rotationY = 0 }: { position: [number, number, numbe
   );
 }
 
-/** Wall-mounted first-aid cabinet with a big green cross — a piece of
- *  real clinic signage for an otherwise bare wall. Thinner than the
- *  MedicineCabinet, no glass door. */
+
 function FirstAidCabinet({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -1900,8 +1840,7 @@ function FirstAidCabinet({ position, rotationY = 0 }: { position: [number, numbe
   );
 }
 
-/** Simple bulletin / information board — cork panel in a wood frame,
- *  with a few pinned papers for visual flavour. Fills dead wall space. */
+
 function BulletinBoard({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -1938,12 +1877,7 @@ function BulletinBoard({ position, rotationY = 0 }: { position: [number, number,
   );
 }
 
-/** Large rug under the exam area. The layers are separated vertically by a
- *  few millimetres each — otherwise they z-fight with the floor plane (and
- *  with each other), which paints as a flickering "loading/unloading" effect
- *  on the screen every frame as the GPU flips between which triangle wins
- *  the depth test. polygonOffset on the floor's neighbour prevents the same
- *  fight against the floor. */
+
 function Rug({ position, size = [3.2, 4.0] as [number, number] }: { position: [number, number, number]; size?: [number, number] }) {
   return (
     <group position={position}>
@@ -2003,9 +1937,7 @@ function SideTable({ position }: { position: [number, number, number] }) {
   );
 }
 
-/** Pendant (hanging) light — ceiling canopy, straight cord, brass/enamel
- *  cone shade. Replaces the older articulated exam arm, which felt
- *  out-of-language with the rest of the furniture. */
+
 function ExamLight({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
@@ -2076,9 +2008,7 @@ function WaterCooler({ position }: { position: [number, number, number] }) {
   );
 }
 
-/** Canvas texture painted like an out-the-window view — blue sky,
- *  distant city skyline, a few clouds. Backs the window panes so the
- *  glass actually shows *something* beyond it. */
+
 function makeWindowViewTexture(): CanvasTexture {
   const w = 512, h = 512;
   const c = document.createElement('canvas');
@@ -2151,10 +2081,7 @@ function makeWindowViewTexture(): CanvasTexture {
   return tex;
 }
 
-/** Painted sky/skyline backdrop that sits BEYOND the left wall, visible
- *  through the window opening cut into it. Big enough to fill the view
- *  from any reasonable angle inside the exam room. Rendered emissive so
- *  it reads as daylight, not an interior surface. */
+
 function OutdoorBackdrop() {
   const tex = useMemo(() => makeWindowViewTexture(), []);
   useEffect(() => () => tex.dispose(), [tex]);
@@ -2184,9 +2111,7 @@ function OutdoorBackdrop() {
   );
 }
 
-/** Window on the left wall with muntins, sill, and a painted view beyond
- *  the glass — blue sky, city skyline, a tree. The actual "sunlight" is
- *  still provided by the directional light in Lighting(). */
+
 function Window({ position }: { position: [number, number, number] }) {
   return (
     <group position={position} rotation={[0, Math.PI / 2, 0]}>
@@ -2274,8 +2199,7 @@ function Window({ position }: { position: [number, number, number] }) {
   );
 }
 
-/** Framed photograph — warm personal touch on the wall. Canvas texture is
- *  a simple "scene" (horizon + sun) so it reads as a picture, not a poster. */
+
 function FramedPhoto({
   position,
   rotationY = 0,
@@ -2545,10 +2469,7 @@ function DoorFrame() {
   );
 }
 
-/** The seated doctor doesn't walk around, so the "interactable" idea boils
- *  down to: E/T acts on the patient when one is seated, otherwise E opens
- *  the archive at the desk. We register EXACTLY ONE interactable at a time
- *  so the player's "closest active" logic never picks the wrong one. */
+
 function SeatedDoctorInteractable({ patientName }: { patientName: string | null }) {
   useEffect(() => {
     if (patientName) {
@@ -2575,10 +2496,7 @@ function SeatedDoctorInteractable({ patientName }: { patientName: string | null 
   return null;
 }
 
-/** Map a patient's severity + chief complaint to a facial expression for
- *  the stylized character. Case data doesn't carry an explicit expression
- *  field, so we scan the complaint text for pain / fatigue / anxiety cues
- *  and fall back to severity. */
+
 function deriveExpression(
   severity: 'critical' | 'urgent' | 'stable' | undefined,
   complaint: string | undefined,
@@ -2599,8 +2517,7 @@ function deriveExpression(
   return 'neutral';
 }
 
-/** Walks the patient in from the corridor to the patient chair, then hides
- *  itself so the seated figure takes over. On patient clear, plays walk-out. */
+
 function WalkingPatient({
   hasPatient,
   patientKey,
@@ -2620,10 +2537,7 @@ function WalkingPatient({
   caseId?: string;
   severity?: 'critical' | 'urgent' | 'stable';
   complaint?: string;
-  /** Fires true when the walk-in animation finishes and the patient has
-   *  reached the chair; false again when a new walk-in starts or the
-   *  patient walks out. The parent uses this to hide the seated figure
-   *  until the walking figure is no longer on screen. */
+
   onSeatedChange?: (seated: boolean) => void;
 }) {
   const groupRef = useRef<Group | null>(null);
@@ -2689,11 +2603,7 @@ function WalkingPatient({
   const charPose: 'walking' | 'sitting' =
     phase === 'seated' ? 'sitting' : 'walking';
   const expression = deriveExpression(severity, complaint);
-  // Pediatric patients arrive with an accompanying adult. The companion
-  // walks alongside the child, then stands beside the chair while the
-  // child sits. Gender comes from the SAME helper the voice persona uses
-  // (`parentGenderForId`) so the visible parent and the speaking parent
-  // are always the same person.
+
   const isChild = patientAge < 14;
   const parentSeed = isChild && caseId ? `${caseId}-parent` : null;
   const parentGender: 'M' | 'F' = caseId ? parentGenderForId(caseId) : 'F';
@@ -2711,9 +2621,7 @@ function WalkingPatient({
         lookAtCamera={charPose === 'sitting'}
       />
       {parentSeed && (
-        // Parent's local +x maps to world −x after the group's seated
-        // rotationY=π, which puts the parent on the camera's RIGHT — a
-        // visible spot next to the chair from the doctor's POV.
+
         <StylizedCharacter
           pose={parentPose}
           walkCycle={walkCycleRef.current}
@@ -2767,8 +2675,7 @@ export function Polyclinic({
     return `${patient.case.id}-${patient.arrivedAt}`;
   }, [patient]);
 
-  // The GLB avatar renders throughout walk-in → seated → walk-out via
-  // WalkingPatient below; no separate seated-figure gate is needed.
+
 
   return (
     <>
