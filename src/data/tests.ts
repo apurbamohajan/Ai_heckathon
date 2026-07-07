@@ -109,12 +109,7 @@ export const TESTS: Test[] = [
 
 export const testById = (id: string) => TESTS.find((t) => t.id === id);
 
-// Convenience panels — fire several tests with one click.
-//
-// `clinicIds` scopes a panel to the polyclinic view. ED panels omit it and
-// therefore only appear in the ER flow (`PatientPanel.tsx`). Polyclinic
-// panels list every specialty they apply to; the polyclinic view filters
-// `TEST_PANELS` by the current clinic.
+
 export interface TestPanel {
   id: string;
   label: string;

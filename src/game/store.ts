@@ -18,9 +18,7 @@ import { ensureAudioContext } from '../voice/conversationStore';
 
 const ONBOARDED_KEY = 'medkit:onboarded';
 
-/** Sentinel used as `bedIndex` for polyclinic patients across the store,
- *  the conversation cache, and the 3D scene. `voice/conversationStore.ts`
- *  keys on this. */
+
 export const POLYCLINIC_BED_INDEX = -10;
 
 function readOnboarded(): boolean {
@@ -46,11 +44,7 @@ const DEFAULT_TWEAKS: Tweaks = {
   roomLayout: 'side',
 };
 
-/** Resolve the full medkit `PatientCase` (anamnesis, vitals, diagnosis
- *  options, etc.) for a cozy-cartoon `Case`. If we can't find one in the
- *  catalogue (shouldn't happen — the cartoon library is derived FROM the
- *  catalogue), fall back to a minimal stub built from the cartoon shape so
- *  the voice agent + 3D scene still get something to render. */
+
 function toPatientCase(c: MedKitCase): PatientCase {
   const real = getPatientCase(c.id);
   if (real) return real;
@@ -73,10 +67,7 @@ function toPatientCase(c: MedKitCase): PatientCase {
   };
 }
 
-/** True when the trainee actually engaged with the patient — asked a
- *  history question, ordered a test, gave a treatment, prescribed, or
- *  submitted a diagnosis. A freshly-arrived patient with no interaction
- *  yet returns false. Used to guard `lastEncounter` overwrites. */
+
 function hasEncounterActivity(p: ActivePatient): boolean {
   return (
     p.askedQuestionIds.length > 0 ||
@@ -168,16 +159,8 @@ class Store {
   setPolyclinicClinic = (clinic: ClinicId) =>
     this.set({ polyclinic: { ...this.state.polyclinic, clinic } });
 
-  /** Track which patients have been finished this session so the
-   *  "next patient" picker doesn't loop on the same chart. Cleared on
-   *  page reload — that's intentional, this is a training session, not
-   *  a database. */
   private attemptedCaseIds = new Set<string>();
 
-  /** Find the next case in the active clinic that hasn't been attempted
-   *  yet. Falls back to the first case in the clinic, then to any case if
-   *  the clinic has no cases at all. Returns null only if the catalogue
-   *  is somehow empty. */
   pickNextCaseId = (): string | null => {
     const clinic = this.state.polyclinic.clinic;
     const inClinic = (
@@ -196,8 +179,7 @@ class Store {
     this.attemptedCaseIds.add(id);
   }
 
-  /** Drop the patient into the polyclinic 3D scene — they walk in, sit on the
-   *  chair, and the voice agent boots once `voiceActive` flips on. */
+
   loadPolyclinicPatient = (id: string) => {
     const c = getCase(id);
     this.set({
@@ -206,16 +188,7 @@ class Store {
     });
   };
 
-  /** Clear the patient — triggers the walk-out animation in the 3D scene.
-   *  Snapshots the encounter into `lastEncounter` so DebriefScreen can grade
-   *  it after the patient has left the chair.
-   *
-   *  Only overwrites `lastEncounter` if the snapshot has actual encounter
-   *  activity. Otherwise the previous snapshot is preserved. This matters
-   *  because the Dispatch flow auto-loads the next patient — if the trainee
-   *  then clicks "End consultation" before engaging that fresh patient,
-   *  the empty new-patient snapshot would otherwise clobber the real one
-   *  and the debrief request would arrive with empty arrays. */
+
   finishPolyclinicCase = () => {
     const snapshot = this.state.polyclinic.patient;
     const keepSnapshot = snapshot && hasEncounterActivity(snapshot);
@@ -231,8 +204,6 @@ class Store {
       endConfirm: { ...this.state.endConfirm, [key]: !this.state.endConfirm[key] },
     });
 
-  /** Library card click: pin the polyclinic to the case's specialty so the
-   *  next-patient flow walks the same roster, then jump to the brief. */
   selectCase = (id: string) => {
     const clinic = getCaseClinic(id);
     this.set({
@@ -244,18 +215,7 @@ class Store {
     });
   };
 
-  /** "Accept the next patient" — drop straight into the 3D encounter with
-   *  the patient seated and the voice agent already connecting.
-   *
-   *  When called without an explicit id, picks the next unattempted case
-   *  from the active polyclinic so the doctor can hammer through e.g.
-   *  pediatrics one at a time without going back to the library.
-   *
-   *  Pre-warms the AudioContext inside this click handler so that browser
-   *  autoplay policies treat the subsequent `Conversation.init()` (kicked
-   *  off when `FloatingVoicePanel` mounts) as gesture-authorised. Without
-   *  this, the AudioContext stays suspended and the mic / remote audio
-   *  silently fail until the user clicks something else. */
+
   acceptNextPatient = (id?: string) => {
     const targetId = id ?? this.pickNextCaseId() ?? this.state.selectedCaseId;
     const c = getCase(targetId);
@@ -277,9 +237,6 @@ class Store {
     });
   };
 
-  // ── examine flow ───────────────────────────────
-  /** Mutate the seated polyclinic patient. No-op when the bed is empty.
-   *  The mutator builds the next snapshot from the current one. */
   private updatePolyclinicPatient = (mut: (p: ActivePatient) => ActivePatient) => {
     const cur = this.state.polyclinic.patient;
     if (!cur) return;
@@ -293,8 +250,7 @@ class Store {
       return { ...p, askedQuestionIds: [...p.askedQuestionIds, qid] };
     });
 
-  /** Order Tests tab: in the polyclinic the result is instant, so we set
-   *  both `orderedTestIds` and `completedTestIds` in one shot. */
+
   orderPolyclinicTest = (testId: string) =>
     this.updatePolyclinicPatient((p) => {
       if (p.orderedTestIds.includes(testId)) return p;
@@ -307,8 +263,6 @@ class Store {
       };
     });
 
-  /** Diagnose tab: lock in a diagnosis. Once submitted, options become
-   *  disabled and the prescription tab unlocks. */
   submitPolyclinicDiagnosis = (dxId: string) =>
     this.updatePolyclinicPatient((p) =>
       p.submittedDiagnosisId ? p : { ...p, submittedDiagnosisId: dxId },

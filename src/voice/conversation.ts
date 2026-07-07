@@ -1,25 +1,4 @@
-/**
- * Real-time voice conversation, backed by LiveKit + Deepgram + Cartesia.
- *
- * Public API surface kept from the legacy push-to-talk implementation so
- * existing consumers (PatientPanel, FloatingVoicePanel, Face, ExamRoom,
- * PatientChatPanel, conversationStore) keep compiling without changes.
- *
- * What changed inside:
- *   - No more browser Whisper / Kokoro / MediaRecorder. The mic streams
- *     over WebRTC into a LiveKit room; the Python voice agent worker
- *     does Deepgram STT → Claude Haiku 4.5 → Cartesia TTS and pipes the
- *     audio back over the same room.
- *   - `init()` now connects the room (and starts the patient's greeting).
- *   - `startListening()` / `stopListeningAndRespond()` are no-ops kept
- *     for backwards compat — real-time means the mic is open the whole
- *     time, no push-to-talk turn boundary.
- *   - `getMouthAmplitude()` reads from an AnalyserNode tapped onto the
- *     remote audio track, so the 3D face lip-sync still works.
- *   - Transcripts (both sides) come from LiveKit transcription events.
- *   - `sendTextMessage()` keeps the legacy /agent/patient/stream path so
- *     the typed-chat panel still functions while voice runs in parallel.
- */
+
 
 import {
   Room,
@@ -209,8 +188,7 @@ export class Conversation {
       sum += d * d;
     }
     const rms = Math.sqrt(sum / n);
-    // Cartesia output peaks around ~0.3 RMS on loud vowels — same multiplier
-    // we used for Kokoro looks right here too.
+
     return Math.min(1, rms * 3.2);
   }
 
@@ -366,9 +344,7 @@ export class Conversation {
       this.listeners.onProgress?.('Live.');
       this.setStatus('ready');
 
-      // Always start a fresh encounter with a placeholder subtitle. The
-      // patient's actual opening line will replace it as soon as the
-      // agent's first transcription arrives.
+
       this.listeners.onSubtitle?.({ who: 'patient', text: '…' });
       this.setEmotion(detectEmotion(initialLine));
     } catch (err: any) {
@@ -402,12 +378,7 @@ export class Conversation {
     this.setStatus('ready');
   }
 
-  /** Trigger the LiveKit voice agent to speak ONE short farewell out loud
-   *  and wait until the audio finishes before resolving. We publish a tiny
-   *  data-channel signal; the Python worker listens and calls
-   *  `session.generate_reply()` with a farewell instruction so the patient
-   *  actually *speaks* the goodbye via Cartesia TTS. Falls back to the
-   *  HTTP text-only path when voice isn't connected. */
+
   async sayFarewell(): Promise<void> {
     this.setStatus('thinking', 'Saying goodbye…');
     this.listeners.onSubtitle?.({ who: 'patient', text: '…' });
@@ -420,9 +391,7 @@ export class Conversation {
 
     if (this.room && this.room.state === 'connected') {
       try {
-        // RPC into the agent participant. We're the only OTHER participant
-        // (doctor) in the room, so any remote participant is the patient
-        // agent. Match by identity prefix or, failing that, take the first.
+
         const remotes = Array.from(this.room.remoteParticipants.values());
         console.log('[farewell] remote participants:', remotes.map((p) => p.identity));
         const agent =
@@ -442,11 +411,7 @@ export class Conversation {
         console.error('[farewell] RPC failed:', err);
       }
 
-      // Wait for the agent to actually start speaking (status flips to
-      // 'speaking' when LiveKit forwards the first transcription segment),
-      // then wait for it to drop back to 'ready'. Pad a short tail so the
-      // last syllable plays through before the room is torn down. Hard cap
-      // at 7 s in case events are missed.
+
       const deadline = Date.now() + 7000;
       let sawSpeaking = false;
       while (Date.now() < deadline) {
@@ -465,8 +430,6 @@ export class Conversation {
       return;
     }
 
-    // Voice not connected — fall back to the old text-only flow so the
-    // subtitle still shows a goodbye line.
     const farewellPrompt =
       "Okay, we're all done. Take care of yourself. Goodbye. " +
       "[This is your final reply. Say a short goodbye — thanks, okay, bye — " +
@@ -495,8 +458,7 @@ export class Conversation {
     this.setStatus('ready');
   }
 
-  /** Text-chat turn — used by PatientChatPanel. Routes through the legacy
-   *  /agent/patient/stream so it doesn't fight the live voice session. */
+
   async sendTextMessage(text: string, _opts?: { speak?: boolean }): Promise<void> {
     const clean = text.trim();
     if (!clean) return;

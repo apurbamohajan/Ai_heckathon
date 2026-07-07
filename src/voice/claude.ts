@@ -5,9 +5,6 @@ export interface ChatMessage {
 
 const PATIENT_STREAM_URL = '/agent/patient/stream';
 
-/** Backend now owns the Anthropic key (POST /agent/patient/stream).
- *  Kept as a function so callers don't need to change — any real failure
- *  surfaces from the first streamClaude() fetch. */
 export function hasClaudeKey(): boolean {
   return true;
 }
