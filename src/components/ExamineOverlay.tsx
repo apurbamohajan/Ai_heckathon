@@ -369,9 +369,7 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
     return out;
   }, []);
 
-  // Specialty-aware panel filter: only panels tagged for the active clinic.
-  // 'all-specialties' surfaces every polyclinic panel; ED-only panels (no
-  // clinicIds) are always hidden from the polyclinic view.
+
   const visiblePanels = useMemo(() => {
     return TEST_PANELS.filter((panel) => {
       if (!panel.clinicIds || panel.clinicIds.length === 0) return false;
@@ -885,9 +883,7 @@ function DiagnoseTab({
   submitted: string | null;
 }) {
   const c = patient.case;
-  // Source data lists the correct answer first; shuffle deterministically per
-  // case so the player can't game it by always tapping the top tile, while
-  // the order stays stable if the overlay is closed and reopened.
+
   const shuffledOptions = useMemo(
     () => shuffleSeeded(c.diagnosisOptions, c.id),
     [c.id, c.diagnosisOptions],
@@ -982,9 +978,6 @@ function ChatTab({ patientName }: { patientName: string }) {
   });
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Subscribe to live message updates so the chat history updates while
-  // the doctor talks. The conversation's `subscribeMessages` returns a
-  // teardown so we clean up on unmount / patient change.
   useEffect(() => {
     const conv = getExistingConversation(POLYCLINIC_BED_INDEX);
     if (!conv) return;

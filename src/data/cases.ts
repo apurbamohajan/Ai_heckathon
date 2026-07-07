@@ -4,9 +4,6 @@ import type { ClinicId } from '../game/clinic';
 import { CLINIC_LABELS } from '../game/clinic';
 import { POLYCLINIC_CASES, POLYCLINIC_DIAGNOSIS_LABELS } from './polyclinicPatients';
 
-/** Cute-cartoon face descriptor for the case library. Derived deterministically
- *  from the underlying `PatientCase` so the same patient always renders the
- *  same face across screens. */
 export interface Case {
   id: string;
   name: string;
@@ -26,11 +23,6 @@ export interface Case {
    *  by specialty as well as by condition. */
   clinic: ClinicId;
 }
-
-// ── deterministic palette pickers ─────────────────────────────────────
-//
-// We derive the cartoon face from `id + age + gender` so faces stay stable
-// across reloads (no random Math.random() at module init).
 
 const SKIN_TONES = [
   '#FFE0BD', // pale cream
@@ -125,8 +117,6 @@ for (const [clinic, list] of Object.entries(POLYCLINIC_CASES) as Array<[ClinicId
 
 export const CASES: Case[] = ALL_CASES_RAW;
 
-/** All distinct condition labels in the catalogue, plus a couple of fixed
- *  filter chips ('All', 'Red-flag only'). */
 const conditionSet = new Set(CASES.map((c) => c.cond));
 export const CONDITION_FILTERS: string[] = ['All', ...Array.from(conditionSet).slice(0, 8), 'Red-flag only'];
 
@@ -147,9 +137,7 @@ export function getCase(id: string): Case {
   return CASES[0];
 }
 
-/** Look up the underlying medical PatientCase (anamnesis, vitals,
- *  diagnosis options, test results, etc.) — used by the encounter /
- *  brief / debrief screens that need more than the cartoon face. */
+
 export function getPatientCase(id: string): PatientCase | undefined {
   return BY_ID.get(id)?.p;
 }
