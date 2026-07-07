@@ -1,8 +1,3 @@
-// Builds the [debrief request] payload sent to the medkit-attending Managed
-// Agent at end-of-encounter. The agent's system prompt (DEBRIEF MODE in
-// backend/server.py) declares the exact contract: case_id, rubric,
-// registry_slice, encounter_log. This module produces that JSON from the
-// in-memory PatientCase + ActivePatient.
 
 import type {
   ActivePatient,
@@ -31,9 +26,7 @@ export interface DebriefRequest {
     gender: 'M' | 'F';
   };
   rubric: CaseRubric;
-  /** Subset of GUIDELINES containing only entries cited by the rubric.
-   *  The agent is instructed to use ONLY recIds from this slice, so the
-   *  payload acts as both context and an allowlist. */
+
   registry_slice: Array<{
     id: string;
     body: string;
@@ -156,10 +149,6 @@ export function buildDebriefRequest(
   };
 }
 
-/** Encode the request as a single chat-message text block. The agent
- *  reads it from the user.message it receives — no separate channel
- *  exists in the Managed Agents API, so we prefix a stable header to
- *  make the trigger unambiguous in the system prompt's DEBRIEF MODE. */
 export function debriefRequestToUserMessage(req: DebriefRequest): string {
   return [
     '[debrief request]',
@@ -215,8 +204,6 @@ function collectRegistrySlice(rubric: CaseRubric): DebriefRequest['registry_slic
   return out;
 }
 
-/** For dev tools / debug overlays. Lets the UI show "evaluating against
- *  N guidelines (M recs)" without re-walking the rubric. */
 export function summariseRequest(req: DebriefRequest): {
   guideline_count: number;
   rec_count: number;
@@ -234,8 +221,7 @@ export function summariseRequest(req: DebriefRequest): {
   };
 }
 
-// Used by the smoke test to sanity-check that GUIDELINES is loaded; not
-// imported elsewhere in the runtime path.
+
 export function totalGuidelinesAvailable(): number {
   return GUIDELINES.length;
 }
