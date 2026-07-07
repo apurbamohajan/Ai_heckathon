@@ -29,7 +29,7 @@ export function FloatingVoicePanel({
   const [voiceStarting, setVoiceStarting] = useState(false);
   const [progress, setProgress] = useState('');
 
-  // Stable listener object — built ONCE per mount.
+
   const listenersRef = useRef<{
     onStatus: (s: ConversationStatus) => void;
     onProgress: (m: string) => void;
@@ -40,29 +40,17 @@ export function FloatingVoicePanel({
     listenersRef.current = {
       onStatus: (s) => setStatus(s),
       onProgress: (m) => setProgress(m),
-      // Only the patient's voice goes into the speech bubble above their
-      // head — the doctor's transcript stays in the chat panel.
+  
       onSubtitle: (sub) => { if (sub.who === 'patient') setSubtitle(sub); },
       onError: (e) => setError(e),
     };
   }
   const listeners = listenersRef.current;
 
-  // Auto-start when the panel mounts. We do NOT dispose on unmount — the
-  // panel can be transiently hidden (e.g. when an exam modal opens) without
-  // killing the conversation. The parent owns the conversation lifecycle:
-  // T-toggle-off and patient-leaves both call disposePatientConversation
-  // explicitly.
-  //
-  // We key on `patient.case.id` (not just bedIndex) so that swapping the
-  // active patient — they all share the polyclinic sentinel bedIndex — also
-  // re-runs init(): the cached conv has been disposed by the parent before
-  // this re-render, so getOrCreatePatientConversation builds a fresh one
-  // and we trigger its greeting.
+
   useEffect(() => {
     let cancelled = false;
-    // Reset visible chrome so the previous patient's last-spoken bubble
-    // doesn't bleed into the new patient's encounter.
+
     setStatus('uninitialized');
     setSubtitle({ who: 'patient', text: '…' });
     setVoiceReady(false);
@@ -83,7 +71,7 @@ export function FloatingVoicePanel({
         .finally(() => { if (!cancelled) setVoiceStarting(false); });
     }
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [patient.bedIndex, patient.case.id]);
 
   const firstName = patient.case.name.split(' ')[0];
