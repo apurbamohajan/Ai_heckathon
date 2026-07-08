@@ -43,8 +43,8 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-SHARED_SECRET = os.environ.get("BACKEND_SHARED_SECRET", "")
 ALLOWED_ORIGINS = [
+    "*",  # open — Railway handles network-level access
     "https://medkit.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -65,30 +65,15 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.middleware("http")
-async def require_shared_secret(request: Request, call_next):
-    path = request.url.path
-    # /health is public for monitoring; CORS preflight runs above this anyway
-    # but bypass OPTIONS defensively.
-    if path == "/health" or request.method == "OPTIONS":
-        return await call_next(request)
-    origin = request.headers.get("origin", "")
-    if origin in DEV_ORIGINS:
-        return await call_next(request)
-    # Same-origin GETs (incl. EventSource) don't send Origin per the Fetch
-    # spec, but they DO send Referer. Trust dev-origin Referer in lieu of
-    # Origin so SSE streams from localhost work without an explicit secret.
-    referer = request.headers.get("referer", "")
-    if any(referer.startswith(o + "/") for o in DEV_ORIGINS):
-        return await call_next(request)
-    if SHARED_SECRET and request.headers.get("x-medkit-auth") == SHARED_SECRET:
-        return await call_next(request)
-    return JSONResponse({"detail": "unauthorized"}, status_code=401)
+async def allow_all_requests(request: Request, call_next):
+    # Auth middleware removed — Railway deployment is open to all origins.
+    return await call_next(request)
 
 
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

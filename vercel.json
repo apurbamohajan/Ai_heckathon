@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/agent/:path*", "destination": "https://grand-rounds-backend.onrender.com/agent/:path*" },
-    { "source": "/voice/:path*", "destination": "https://grand-rounds-backend.onrender.com/voice/:path*" },
+    { "source": "/agent/:path*", "destination": "https://ravishing-amazement-production-605e.up.railway.app/agent/:path*" },
+    { "source": "/voice/:path*", "destination": "https://ravishing-amazement-production-605e.up.railway.app/voice/:path*" },
     { "source": "/:path*", "destination": "/" }
   ]
 }

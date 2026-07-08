@@ -9,12 +9,12 @@ const PROXY = {
   },
 
   '^/agent/': {
-    target: 'http://127.0.0.1:8787',
+    target: 'https://ravishing-amazement-production-605e.up.railway.app',
     changeOrigin: true,
   },
   // Real-time voice — backend mints LiveKit tokens.
   '^/voice/': {
-    target: 'http://127.0.0.1:8787',
+    target: 'https://ravishing-amazement-production-605e.up.railway.app',
     changeOrigin: true,
   },
 };

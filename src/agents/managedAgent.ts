@@ -1,3 +1,4 @@
+
 const AGENT_BASE = '/agent';
 
 export interface BootstrapResult {
@@ -39,24 +40,50 @@ export interface StreamOptions {
   backfillOnReconnect?: boolean;
 }
 
+const FETCH_MAX_RETRIES = 3;
+const FETCH_RETRY_BASE_MS = 1500;
+
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  let attempt = 0;
+  while (true) {
+    const res = await fetch(url, init);
+    if (res.status !== 429 || attempt >= FETCH_MAX_RETRIES) return res;
+    const delay = FETCH_RETRY_BASE_MS * Math.pow(2, attempt);
+    attempt++;
+    await new Promise<void>((r) => setTimeout(r, delay));
+  }
+}
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${AGENT_BASE}${path}`, {
+  const res = await fetchWithRetry(`${AGENT_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`POST ${path} failed: ${res.status} ${text}`);
+    if (res.status === 429) {
+      throw new Error('Too many requests — the server is busy. Please wait a moment and try again.');
+    }
+    // Strip Railway Request ID noise from error messages
+    const clean = text.replace(/\bRequest ID:?\s*[\w-]+/gi, '').trim();
+    throw new Error(`POST ${path} failed: ${res.status}${clean ? ' ' + clean : ''}`);
   }
   return (await res.json()) as T;
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${AGENT_BASE}${path}`);
+  const res = await fetchWithRetry(`${AGENT_BASE}${path}`, { method: 'GET' });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`GET ${path} failed: ${res.status} ${text}`);
+    if (res.status === 429) {
+      throw new Error('Too many requests — the server is busy. Please wait a moment and try again.');
+    }
+    const clean = text.replace(/\bRequest ID:?\s*[\w-]+/gi, '').trim();
+    throw new Error(`GET ${path} failed: ${res.status}${clean ? ' ' + clean : ''}`);
   }
   return (await res.json()) as T;
 }
