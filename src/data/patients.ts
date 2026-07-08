@@ -3,7 +3,7 @@ import type { PatientCase } from '../game/types';
 export const PATIENT_CASES: PatientCase[] = [
   {
     id: 'mi-001',
-    name: 'Ronald Smith',
+    name: 'Golzar Mondal',
     age: 62,
     gender: 'M',
     severity: 'critical',
@@ -33,7 +33,7 @@ export const PATIENT_CASES: PatientCase[] = [
   },
   {
     id: 'appy-002',
-    name: 'Donna Johnson',
+    name: 'Kamrun Mondal',
     age: 19,
     gender: 'F',
     severity: 'urgent',
@@ -63,7 +63,7 @@ export const PATIENT_CASES: PatientCase[] = [
   },
   {
     id: 'asthma-003',
-    name: 'Timothy Williams',
+    name: 'Kabir Mondal',
     age: 28,
     gender: 'M',
     severity: 'urgent',
@@ -92,7 +92,7 @@ export const PATIENT_CASES: PatientCase[] = [
   },
   {
     id: 'anaph-004',
-    name: 'Michelle Brown',
+    name: 'Jahanara Sardar',
     age: 34,
     gender: 'F',
     severity: 'critical',
@@ -119,7 +119,7 @@ export const PATIENT_CASES: PatientCase[] = [
   },
   {
     id: 'stroke-005',
-    name: 'Jason Jones',
+    name: 'Yasin Khan',
     age: 71,
     gender: 'M',
     severity: 'critical',
@@ -148,7 +148,7 @@ export const PATIENT_CASES: PatientCase[] = [
   },
   {
     id: 'uti-006',
-    name: 'Carol Garcia',
+    name: 'Chandra Ahmed',
     age: 45,
     gender: 'F',
     severity: 'stable',

@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import asyncio
@@ -10,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from livekit import agents, rtc
 from livekit.agents import Agent, AgentSession, RoomInputOptions, WorkerOptions, cli
-from livekit.plugins import anthropic, cartesia, deepgram, silero
+from livekit.plugins import cartesia, deepgram, google, silero
 
 # Load .env.local first (project convention), .env as fallback.
 _BACKEND = Path(__file__).resolve().parent
@@ -85,7 +84,11 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=deepgram.STT(model="nova-3", language="en"),
-        llm=anthropic.LLM(model="claude-haiku-4-5-20251001", temperature=0.8),
+        llm=google.LLM(
+            model="gemini-3.5-flash",
+            api_key=os.environ.get("GEMINI_API_KEY"),
+            temperature=0.8,
+        ),
         tts=cartesia.TTS(model="sonic-2", voice=voice_id),
         vad=silero.VAD.load(),
     )

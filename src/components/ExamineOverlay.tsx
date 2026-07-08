@@ -146,7 +146,7 @@ export function ExamineOverlay({ onClose, onDispatch }: Props) {
             gap: 8,
             padding: '12px 22px 0',
             borderBottom: '3px solid var(--line)',
-            background: 'white',
+            background: 'var(--paper)',
           }}
         >
           {tabs.map((t) => {
@@ -161,7 +161,7 @@ export function ExamineOverlay({ onClose, onDispatch }: Props) {
                 disabled={disabled}
                 title={disabled ? 'Submit a diagnosis first' : undefined}
                 style={{
-                  background: active ? 'var(--butter)' : 'white',
+                  background: active ? 'var(--butter)' : 'var(--paper)',
                   border: '3px solid var(--line)',
                   borderBottom: active ? '3px solid var(--butter)' : '3px solid var(--line)',
                   borderRadius: '14px 14px 0 0',
@@ -182,7 +182,7 @@ export function ExamineOverlay({ onClose, onDispatch }: Props) {
                 {t.badge !== undefined && (
                   <span
                     className="chip"
-                    style={{ fontSize: 10, padding: '1px 7px', background: 'white', color: '#111' }}
+                    style={{ fontSize: 10, padding: '1px 7px', background: 'var(--paper)', color: 'var(--ink)'}}
                   >
                     {t.badge}
                   </span>
@@ -303,15 +303,15 @@ function HistoryTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
           className="plush"
           style={{
             padding: 12,
-            background: q.relevant ? 'var(--mint)' : 'white',
+            background: q.relevant ? 'var(--mint)' : 'var(--paper)',
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
           }}
         >
           <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--ink-2)' }}>You asked</div>
-          <div style={{ fontWeight: 700, fontSize: 14 }}>{q.question}</div>
-          <div style={{ marginTop: 4, fontSize: 14, fontStyle: 'italic' }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>{q.question}</div>
+          <div style={{ marginTop: 4, fontSize: 14, fontStyle: 'italic', color: 'var(--ink)' }}>
             <strong>{c.name.split(' ')[0]}:</strong> "{q.answer}"
           </div>
         </div>
@@ -556,7 +556,7 @@ function CollapsibleSection({
       open={defaultOpen}
       style={{
         padding: 0,
-        background: 'white',
+        background: 'var(--paper)',
         overflow: 'hidden',
       }}
     >
@@ -668,7 +668,7 @@ function ResultsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
           <details
             key={tid}
             className="plush"
-            style={{ padding: 12, background: 'white' }}
+            style={{ padding: 12, background: 'var(--paper)' }}
           >
             <summary
               style={{
@@ -690,7 +690,7 @@ function ResultsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
                   border: '2px solid var(--line)',
                 }}
               />
-              <span style={{ color: '#111' }}>{test.name}</span>
+              <span style={{ color: 'var(--ink)'}}>{test.name}</span>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-2)' }}>
                 {report?.abnormal ? 'abnormal' : 'normal'}
               </span>
@@ -728,7 +728,7 @@ function ResultsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
                       style={{
                         padding: '6px 10px',
                         fontSize: 11,
-                        color: '#d8d8dc',
+                        color: '#e8e8ec',
                         fontWeight: 600,
                         background: '#0b0b0d',
                       }}
@@ -766,6 +766,7 @@ function ResultsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
                   padding: 10,
                   borderRadius: 10,
                   border: '2px solid var(--line)',
+                  color: 'var(--ink)',
                 }}
               >
                 {report?.text ?? 'Pending…'}
@@ -893,7 +894,7 @@ function DiagnoseTab({
   );
   if (c.diagnosisOptions.length === 0) {
     return (
-      <div className="plush" style={{ padding: 14, fontWeight: 700, color: '#333333' }}>
+      <div className="plush" style={{ padding: 14, fontWeight: 700, color: 'var(--ink-2)'}}>
         No diagnosis options for this case.
       </div>
     );
@@ -910,7 +911,7 @@ function DiagnoseTab({
           const isPicked = submitted === dxId;
           const showCorrect = submitted !== null && dxId === c.correctDiagnosisId;
           const showWrong = isPicked && !isCorrect;
-          const bg = showCorrect ? 'var(--mint)' : showWrong ? 'var(--rose)' : isPicked ? 'var(--butter)' : 'white';
+          const bg = showCorrect ? 'var(--mint)' : showWrong ? 'var(--rose)' : isPicked ? 'var(--butter)' : 'var(--paper)';
           return (
             <button
               key={dxId}
@@ -1029,7 +1030,7 @@ function ChatTab({ patientName }: { patientName: string }) {
             style={{
               alignSelf: mine ? 'flex-end' : 'flex-start',
               maxWidth: '78%',
-              background: mine ? 'var(--sky)' : 'white',
+              background: mine ? 'var(--sky)' : 'var(--paper)',
               border: '3px solid var(--line)',
               borderRadius:
                 mine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
@@ -1165,7 +1166,7 @@ function RxTab({
                 <div
                   key={i}
                   className="plush"
-                  style={{ padding: 10, background: 'var(--mint)', fontWeight: 700, fontSize: 13 }}
+                  style={{ padding: 10, background: 'var(--mint)', fontWeight: 700, fontSize: 13, color: 'var(--ink)' }}
                 >
                   💊 <strong>{med?.name ?? rx.medicationId}</strong> — {rx.dose}, {rx.duration}
                 </div>
@@ -1240,7 +1241,7 @@ function RxTab({
                 background: isPicked ? 'var(--butter)' : undefined,
               }}
             >
-              <div>
+              <div style={{ color: 'var(--ink)' }}>
                 {isPicked ? '✓ ' : ''}
                 {m.name}
               </div>
@@ -1279,7 +1280,7 @@ function RxTab({
             <div
               key={med.id}
               style={{
-                background: 'white',
+                background: 'var(--glass)',
                 border: '3px solid var(--line)',
                 borderRadius: 12,
                 padding: 10,
@@ -1366,6 +1367,6 @@ const inputStyle: React.CSSProperties = {
   fontFamily: 'inherit',
   fontWeight: 700,
   fontSize: 13,
-  background: 'white',
+  background: 'var(--paper)',
   color: 'var(--ink)',
 };

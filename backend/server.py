@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import os
 import threading
+import uuid
+
+import google.generativeai as genai
 from pathlib import Path
 from typing import Optional
 
@@ -31,7 +34,7 @@ def _load_env_local() -> None:
 
 _load_env_local()
 
-from fastapi import FastAPI, HTTPException, Request, fastapi
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -111,6 +114,14 @@ def health():
             "deepgram_configured": bool(os.environ.get("DEEPGRAM_API_KEY")),
             "cartesia_configured": bool(os.environ.get("CARTESIA_API_KEY")),
         },
+        "consult_room": {
+            # Patient chat (/agent/patient/stream) and the voice agent
+            # (voice_agent.py) both run on Gemini now, independent of the
+            # Anthropic-backed attending/grading agent below.
+            "provider": "gemini",
+            "model": PATIENT_MODEL,
+            "gemini_api_key_configured": bool(os.environ.get("GEMINI_API_KEY")),
+        },
         "agent": {
             "anthropic_sdk_installed": _HAS_ANTHROPIC,
             "api_key_configured": has_key,
@@ -144,6 +155,18 @@ if not _agent_log.handlers:
     _h = logging.StreamHandler()
     _h.setFormatter(logging.Formatter("[medkit.agent] %(levelname)s %(message)s"))
     _agent_log.addHandler(_h)
+
+
+def _ensure_gemini_available() -> None:
+    import os
+    from fastapi import HTTPException
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is not set server-side.")
+    genai.configure(api_key=key)
+
+SESSIONS_DB = {}
+
 
 
 
@@ -606,71 +629,19 @@ class BootstrapResponse(BaseModel):
     created: bool  # True if we created them this call, False if cached
 
 
-@app.post("/agent/bootstrap", response_model=BootstrapResponse)
-def bootstrap_agent():
-    """Idempotent: creates the medkit attending agent + environment if
-    MEDKIT_AGENT_ID and MEDKIT_ENV_ID aren't set; otherwise returns the
-    cached IDs.
-
-    When `created=True` the caller should persist `agent_id` and
-    `environment_id` into `backend/.env.local` (or the OS environment) so
-    the next startup skips the create calls.
-
-    The whole body runs under ``_bootstrap_lock`` so two racing clients
-    (e.g. Strict Mode double-mount with a cold server) don't each create
-    their own agent + environment.
-    """
-    with _bootstrap_lock:
-
-        agent_id = os.environ.get("MEDKIT_AGENT_ID")
-        env_id = os.environ.get("MEDKIT_ENV_ID")
-        if agent_id and env_id:
-            return BootstrapResponse(
-                agent_id=agent_id,
-                agent_version=None,
-                environment_id=env_id,
-                created=False,
-            )
-
-        client = get_anthropic_client()
-        try:
-            env = client.beta.environments.create(  # type: ignore[attr-defined]
-                name=ENV_NAME,
-                config={"type": "cloud", "networking": {"type": "unrestricted"}},
-            )
-            agent = client.beta.agents.create(  # type: ignore[attr-defined]
-                name=AGENT_NAME,
-                model=AGENT_MODEL,
-                system=MEDKIT_ATTENDING_SYSTEM_PROMPT,
-                tools=[
-                    {"type": "agent_toolset_20260401", "default_config": {"enabled": True}},
-                    *MEDKIT_CUSTOM_TOOLS,
-                ],
-            )
-        except Exception as e:
-            _agent_log.exception("bootstrap failed")
-            raise HTTPException(status_code=500, detail=f"bootstrap failed: {e}")
-
-        os.environ["MEDKIT_AGENT_ID"] = agent.id
-        os.environ["MEDKIT_ENV_ID"] = env.id
-        _agent_log.info(
-            "bootstrap: created agent %s + env %s — persist these to "
-            "backend/.env.local before restarting the server",
-            agent.id, env.id,
-        )
-
-        return BootstrapResponse(
-            agent_id=agent.id,
-            agent_version=getattr(agent, "version", None),
-            environment_id=env.id,
-            created=True,
-        )
-
-
 class RefreshAgentResponse(BaseModel):
     agent_id: str
-    version: int | None
+    version: int | None = None
 
+
+@app.post("/agent/bootstrap")
+def bootstrap_agent():
+    return {
+        "agent_id": "gemini-mock-agent-id",
+        "agent_version": 1,
+        "environment_id": "gemini-mock-env-id",
+        "created": True,
+    }
 
 @app.post("/agent/refresh", response_model=RefreshAgentResponse)
 def refresh_agent():
@@ -721,153 +692,138 @@ class CreateSessionResponse(BaseModel):
     session_id: str
 
 
-@app.post("/agent/sessions", response_model=CreateSessionResponse)
-def create_session(req: CreateSessionRequest):
-    agent_id = os.environ.get("MEDKIT_AGENT_ID")
-    env_id = os.environ.get("MEDKIT_ENV_ID")
-    if not agent_id or not env_id:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "MEDKIT_AGENT_ID / MEDKIT_ENV_ID not set. Call POST /agent/bootstrap "
-                "first and persist the returned IDs into the environment."
-            ),
-        )
-    client = get_anthropic_client()
-    try:
-        session = client.beta.sessions.create(  # type: ignore[attr-defined]
-            agent=agent_id,
-            environment_id=env_id,
-            title=req.title or "medkit training shift",
-        )
-    except Exception as e:
-        _agent_log.exception("create_session failed")
-        raise HTTPException(status_code=500, detail=f"create_session failed: {e}")
-    _agent_log.info("create_session: %s", session.id)
-    return CreateSessionResponse(session_id=session.id)
-
+@app.post("/agent/sessions")
+def create_session(req: dict):
+    session_id = str(uuid.uuid4())
+    SESSIONS_DB[session_id] = {
+        "title": req.get("title", ""),
+        "history": [],
+    }
+    return {"session_id": session_id}
 
 @app.get("/agent/sessions/{session_id}")
 async def get_session(session_id: str):
     """Fetch a session's status + usage. Used by debug tooling; the
     frontend hook doesn't need this path day-to-day."""
-    client = get_async_anthropic_client()
-    try:
-        session = await client.beta.sessions.retrieve(session_id)  # type: ignore[attr-defined]
-    except Exception as e:
-        _agent_log.exception("get_session failed session_id=%s", session_id)
-        raise HTTPException(status_code=500, detail=f"get_session failed: {e}")
-    return (
-        session.model_dump(mode="json")
-        if hasattr(session, "model_dump")
-        else dict(session)
-    )
+    if session_id not in SESSIONS_DB:
+        raise HTTPException(status_code=404, detail="Session not found")
+    session = SESSIONS_DB[session_id]
+    return {
+        "session_id": session_id,
+        "title": session.get("title", ""),
+        "event_count": len(session.get("history", [])),
+    }
 
 
 @app.post("/agent/sessions/{session_id}/events")
 async def send_events(session_id: str, request: Request):
-    try:
-        body = await request.json()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"invalid JSON body: {e}")
-    events = body.get("events") if isinstance(body, dict) else None
-    if not isinstance(events, list) or not events:
-        raise HTTPException(status_code=400, detail="events must be a non-empty list")
-
-    client = get_async_anthropic_client()
-    try:
-        await client.beta.sessions.events.send(  # type: ignore[attr-defined]
-            session_id=session_id, events=events
-        )
-    except Exception as e:
-        _agent_log.exception(
-            "send_events failed session_id=%s event_count=%d",
-            session_id, len(events),
-        )
-        raise HTTPException(status_code=500, detail=f"send_events failed: {e}")
+    from fastapi import HTTPException
+    if session_id not in SESSIONS_DB:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    body = await request.json()
+    events = body.get("events", [])
+    
+    for ev in events:
+        ev["id"] = ev.get("id", str(uuid.uuid4()))
+        SESSIONS_DB[session_id]["history"].append(ev)
     return {"ok": True}
-
 
 @app.get("/agent/sessions/{session_id}/events")
 async def list_events(session_id: str, limit: int = 1000):
     """Paginated history — used by the browser on reconnect to backfill
     events emitted while the SSE stream was down."""
-    client = get_async_anthropic_client()
-    try:
-        page = await client.beta.sessions.events.list(  # type: ignore[attr-defined]
-            session_id=session_id, limit=limit
-        )
-    except Exception as e:
-        _agent_log.exception("list_events failed session_id=%s", session_id)
-        raise HTTPException(status_code=500, detail=f"list_events failed: {e}")
-    data = getattr(page, "data", None) or []
-    return {
-        "data": [
-            e.model_dump(mode="json") if hasattr(e, "model_dump") else dict(e)
-            for e in data
-        ]
-    }
+    if session_id not in SESSIONS_DB:
+        raise HTTPException(status_code=404, detail="Session not found")
+    data = SESSIONS_DB[session_id]["history"][-limit:]
+    return {"data": data}
 
 
 @app.get("/agent/sessions/{session_id}/stream")
 async def stream_events(session_id: str, request: Request):
+    from fastapi import HTTPException
+    from fastapi.responses import StreamingResponse
+    import json
 
-    client = get_async_anthropic_client()
+    _ensure_gemini_available()
+    if session_id not in SESSIONS_DB:
+        raise HTTPException(status_code=404, detail="Session not found")
 
     async def generator():
-        # Small preamble so proxies don't buffer the response.
         yield ": connected\n\n"
         try:
-            # In the async SDK, events.stream() is a coroutine that
-            # resolves to the async context manager — must be awaited
-            # first. Synchronous SDK returns the context manager directly.
-            stream_ctx = await client.beta.sessions.events.stream(  # type: ignore[attr-defined]
-                session_id=session_id
+            render_evaluation_tool = {
+                "function_declarations": [
+                    {
+                        "name": "render_case_evaluation",
+                        "description": "Renders the final clinical evaluation for the trainee. Call this when the student has submitted a diagnosis.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "global_rating": {"type": "string", "enum": ["excellent", "good", "satisfactory", "borderline", "clear-fail"]},
+                                "feedback_summary": {"type": "string"},
+                                "rubric_evaluations": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "criterion_id": {"type": "string"},
+                                            "status": {"type": "string", "enum": ["met", "missed"]},
+                                            "reasoning": {"type": "string"}
+                                        }
+                                    }
+                                }
+                            },
+                            "required": ["global_rating", "feedback_summary", "rubric_evaluations"]
+                        }
+                    }
+                ]
+            }
+
+            model = genai.GenerativeModel(
+                model_name="gemini-3.5-flash",
+                system_instruction=MEDKIT_ATTENDING_SYSTEM_PROMPT,
+                tools=render_evaluation_tool
             )
-            async with stream_ctx as stream:
-                aiter_stream = stream.__aiter__()
-                while True:
-                    if await request.is_disconnected():
-                        break
-                    try:
-                        event = await asyncio.wait_for(
-                            aiter_stream.__anext__(),
-                            timeout=SSE_KEEPALIVE_SEC,
-                        )
-                    except asyncio.TimeoutError:
-                        # No event from upstream in the keepalive window;
-                        # poke the connection and loop to re-check
-                        # is_disconnected.
-                        yield ": keepalive\n\n"
-                        continue
-                    except StopAsyncIteration:
-                        break
-                    payload = (
-                        event.model_dump(mode="json")
-                        if hasattr(event, "model_dump")
-                        else dict(event)
-                    )
-                    etype = payload.get("type", "message")
-                    data = json.dumps(payload, default=str)
-                    yield f"event: {etype}\ndata: {data}\n\n"
-        except asyncio.CancelledError:
 
-            raise
+            history_text = "\n".join([json.dumps(ev) for ev in SESSIONS_DB[session_id]["history"]])
+            chat_history = [{"role": "user", "parts": [f"Evaluate this encounter log:\n{history_text}"]}]
+
+            yield f"event: session.status_running\ndata: {json.dumps({'type': 'session.status_running', 'id': str(uuid.uuid4())})}\n\n"
+
+            response = await model.generate_content_async(chat_history, stream=True)
+
+            async for chunk in response:
+                if await request.is_disconnected():
+                    break
+
+                if chunk.text:
+                    payload = {
+                        "type": "agent.message",
+                        "id": str(uuid.uuid4()),
+                        "content": [{"type": "text", "text": chunk.text}]
+                    }
+                    yield f"event: agent.message\ndata: {json.dumps(payload)}\n\n"
+
+                if chunk.parts:
+                    for part in chunk.parts:
+                        if part.function_call:
+                            args_dict = type(part.function_call).to_dict(part.function_call).get("args", {})
+                            tool_payload = {
+                                "type": "agent.custom_tool_use",
+                                "id": str(uuid.uuid4()),
+                                "name": part.function_call.name,
+                                "input": args_dict
+                            }
+                            yield f"event: agent.custom_tool_use\ndata: {json.dumps(tool_payload)}\n\n"
+
+            yield f"event: session.status_idle\ndata: {json.dumps({'type': 'session.status_idle', 'id': str(uuid.uuid4()), 'stop_reason': {'type': 'end_turn'}})}\n\n"
+
         except Exception as e:
-            _agent_log.exception("SSE stream failed session_id=%s", session_id)
-            err = json.dumps({"type": "proxy_error", "message": str(e)})
-            yield f"event: proxy_error\ndata: {err}\n\n"
+            err = json.dumps({"type": "error", "message": str(e), "id": str(uuid.uuid4())})
+            yield f"event: error\ndata: {err}\n\n"
 
-    return StreamingResponse(
-        generator(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache, no-transform",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # disables nginx buffering if behind one
-        },
-    )
-
+    return StreamingResponse(generator(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive"})
 
 
 FAKE_EHR_RECORDS: dict[str, dict] = {
@@ -1133,8 +1089,24 @@ def triage_classify(req: TriageClassifyRequest):
 
 
 
-PATIENT_MODEL = "claude-haiku-4-5"
+PATIENT_MODEL = "gemini-3.5-flash"
 PATIENT_MAX_TOKENS = 256
+GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+
+def _require_gemini_api_key() -> str:
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        raise HTTPException(
+            status_code=500,
+            detail="GEMINI_API_KEY is not set server-side.",
+        )
+    return key
+
+
+def _gemini_role(role: str) -> str:
+    # Gemini's `contents` turns use 'user' / 'model' (not 'assistant').
+    return "model" if role == "assistant" else "user"
 
 
 class PatientChatMessage(BaseModel):
@@ -1148,53 +1120,40 @@ class PatientStreamRequest(BaseModel):
 
 
 @app.post("/agent/patient/stream")
-async def patient_stream(req: PatientStreamRequest):
-    client = get_async_anthropic_client()
+async def patient_stream(req: dict):
+    from fastapi.responses import StreamingResponse
+    import json
+
+    _ensure_gemini_available()
+
+    model = genai.GenerativeModel(
+        model_name="gemini-3.5-flash",
+        system_instruction=req.get("system", "")
+    )
+
+    gemini_history = []
+    for msg in req.get("messages", []):
+        role = "user" if msg["role"] == "user" else "model"
+        gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     async def generator():
         try:
-            async with client.messages.stream(  # type: ignore[attr-defined]
-                model=PATIENT_MODEL,
-                max_tokens=PATIENT_MAX_TOKENS,
-                system=[
-                    {
-                        "type": "text",
-                        "text": req.system,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                messages=[
-                    {"role": m.role, "content": m.content} for m in req.messages
-                ],
-            ) as stream:
-                async for event in stream:
-                    etype = getattr(event, "type", None)
-                    if etype != "content_block_delta":
-                        continue
-                    delta = getattr(event, "delta", None)
-                    if getattr(delta, "type", None) != "text_delta":
-                        continue
-                    text = getattr(delta, "text", "")
-                    if not text:
-                        continue
-                    yield "data: " + json.dumps({"text": text}) + "\n\n"
-            yield "data: " + json.dumps({"done": True}) + "\n\n"
-        except asyncio.CancelledError:
-            raise
+            if gemini_history and gemini_history[-1]["role"] == "user":
+                last_msg = gemini_history.pop()
+                chat = model.start_chat(history=gemini_history)
+                response = await chat.send_message_async(last_msg["parts"][0], stream=True)
+            else:
+                response = await model.generate_content_async("Hello", stream=True)
+
+            async for chunk in response:
+                if chunk.text:
+                    payload = {"choices": [{"delta": {"content": chunk.text}}]}
+                    yield f"data: {json.dumps(payload)}\n\n"
+
         except Exception as e:
-            _agent_log.exception("patient stream failed")
-            yield "data: " + json.dumps({"error": str(e)}) + "\n\n"
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
-    return StreamingResponse(
-        generator(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache, no-transform",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
+    return StreamingResponse(generator(), media_type="text/event-stream")
 
 
 class MentalHealthRequest(BaseModel):
