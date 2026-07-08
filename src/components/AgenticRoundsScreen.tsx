@@ -233,7 +233,7 @@ function AgentTab() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div className="card" style={{ padding: 24 }}>
-        <h3 style={{ margin: '0 0 16px' }}>medkit-attending</h3>
+        <h3 style={{ margin: '0 0 16px' }}>auraliscare-attending</h3>
         <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ink-2)' }}>
           The senior clinician of the simulator. One agent observes the entire encounter and grades it at the end. Citation discipline is enforced at the system-prompt level.
         </p>

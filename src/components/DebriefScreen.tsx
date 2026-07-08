@@ -540,7 +540,7 @@ export function DebriefScreen() {
 
   return (
     <div className="screen paper" style={{ overflowY: 'auto' }}>
-      <TopBar here={5} steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter', 'Debrief']} />
+      <TopBar here={5} steps={['Consult Room', 'GP', 'Case', 'Brief', 'Encounter', 'Debrief']} />
 
       <div style={{ padding: '28px 36px 60px', maxWidth: 1080, margin: '0 auto' }}>
         {!c || !patient ? (
@@ -580,7 +580,7 @@ export function DebriefScreen() {
             style={{ flex: 1 }}
             onClick={() => store.setScreen('mode')}
           >
-            ← Back to polyclinic
+            ← Back to consult room
           </button>
           <button
             type="button"

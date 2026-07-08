@@ -392,7 +392,7 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-2)' }}>
-        Polyclinic tests return <strong>instantly</strong>. Sections are collapsed — click a row to open it.
+        Consult room tests return <strong>instantly</strong>. Sections are collapsed — click a row to open it.
       </div>
 
       {/* Panels — clinic-scoped, collapsible. */}

@@ -228,7 +228,7 @@ export function AnimalFace({ size = 120 }: { size?: number }) {
 
 import type { Screen } from '../game/types';
 const LABEL_TO_SCREEN: Record<string, Screen> = {
-  Polyclinic: 'mode', GP: 'gpRoom', Case: 'library', Brief: 'brief', Encounter: 'encounter', Wrap: 'endConfirm', Debrief: 'debrief', Profile: 'home', History: 'history',
+  'Consult Room': 'mode', GP: 'gpRoom', Case: 'library', Brief: 'brief', Encounter: 'encounter', Wrap: 'endConfirm', Debrief: 'debrief', Profile: 'home', History: 'history',
 };
 
 interface BreadcrumbProps {
@@ -270,7 +270,7 @@ interface TopBarProps {
   onBack?: () => void;
 }
 
-export function TopBar({ here = 0, steps = ['Polyclinic'], showProfile = true, onBack }: TopBarProps) {
+export function TopBar({ here = 0, steps = ['Consult Room'], showProfile = true, onBack }: TopBarProps) {
   return (
     <div className="nav">
       <span

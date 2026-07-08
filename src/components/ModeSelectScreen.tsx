@@ -102,7 +102,7 @@ export function ModeSelectScreen() {
           }}
         >
           <ModuleCard
-            title="Polyclinics"
+            title="Consult Rooms"
             description="Outpatient consultations across 11 specialties. Choose a case, take history, examine, and agree on a management plan."
             icon={<IconStethoscope size={28} color="white" />}
             available

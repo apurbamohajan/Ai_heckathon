@@ -178,7 +178,7 @@ export function CaseLibraryScreen() {
 
   return (
     <div className="screen" style={{ background: 'transparent' }}>
-      <TopBar here={2} steps={['Polyclinic', 'GP', 'Case']} />
+      <TopBar here={2} steps={['Consult Room', 'GP', 'Case']} />
 
       <div style={{ padding: '24px 24px 40px', maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
@@ -196,7 +196,7 @@ export function CaseLibraryScreen() {
               Pick a patient
             </h1>
             <p style={{ fontSize: 14, color: 'var(--ink-2)', margin: 0 }}>
-              Cases are grouped by polyclinic — pick a specialty chip to focus.
+              Cases are grouped by consult room — pick a specialty chip to focus.
             </p>
           </div>
           <button

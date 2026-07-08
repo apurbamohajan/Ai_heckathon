@@ -131,7 +131,7 @@ export function GPRoomScreen() {
 
   return (
     <div className="screen" style={{ background: 'transparent', position: 'relative' }}>
-      <TopBar here={1} steps={['Polyclinic', 'GP']} />
+      <TopBar here={1} steps={['Consult Room', 'GP']} />
 
       <div style={{ padding: '24px 24px 40px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ marginBottom: 24 }}>
@@ -139,7 +139,7 @@ export function GPRoomScreen() {
             How would you like to start?
           </h1>
           <p style={{ fontSize: 15, color: 'var(--ink-2)', margin: 0 }}>
-            Pick a polyclinic and the next patient on the bench will walk straight in. Or browse the case folder.
+            Pick a consult room and the next patient on the bench will walk straight in. Or browse the case folder.
           </p>
         </div>
 

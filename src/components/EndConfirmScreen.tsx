@@ -23,7 +23,7 @@ export function EndConfirmScreen() {
 
   return (
     <div className="screen" style={{ background: 'transparent', position: 'relative' }}>
-      <TopBar here={5} steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter', 'Wrap']} />
+      <TopBar here={5} steps={['Consult Room', 'GP', 'Case', 'Brief', 'Encounter', 'Wrap']} />
 
       <div
         style={{

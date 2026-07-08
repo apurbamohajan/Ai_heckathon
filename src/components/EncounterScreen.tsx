@@ -108,7 +108,7 @@ function Loader() {
           fontWeight: 600,
         }}
       >
-        Loading polyclinic…
+        ← Back to consult room
       </div>
     </Html>
   );
@@ -313,7 +313,7 @@ export function EncounterScreen() {
 
   return (
     <div className="screen" style={{ background: 'var(--cream)', position: 'relative' }}>
-      <TopBar here={4} steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter']} />
+      <TopBar here={4} steps={['Consult Room', 'GP', 'Case', 'Brief', 'Encounter']} />
 
       <div
         style={{
