@@ -1,79 +1,141 @@
+import { useState } from 'react';
 import { TopBar, IconStethoscope, IconBrain } from './primitives';
 import { store } from '../game/store';
 
-interface ModuleCardProps {
+interface WingProps {
+  wing: string;
   title: string;
   description: string;
   icon: React.ReactNode;
-  available?: boolean;
-  locked?: boolean;
-  tags?: string[];
-  onClick?: () => void;
+  accent: string;
+  accent2: string;
+  stat: { value: string; label: string };
+  cta: string;
+  onClick: () => void;
 }
 
-function ModuleCard({ title, description, icon, available, locked, tags = [], onClick }: ModuleCardProps) {
+function WingPanel({ wing, title, description, icon, accent, accent2, stat, cta, onClick }: WingProps) {
+  const [hover, setHover] = useState(false);
+
   return (
     <div
-      className={available ? 'interactive' : ''}
-      onClick={available ? onClick : undefined}
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onClick();
+      }}
       style={{
-        background: locked
-          ? 'var(--glass-subtle)'
-          : 'linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08))',
-        border: '1px solid var(--line)',
-        borderRadius: 'var(--r-xl)',
-        padding: 24,
+        position: 'relative',
+        flex: '1 1 340px',
+        maxWidth: 420,
+        minHeight: 360,
         display: 'flex',
         flexDirection: 'column',
-        gap: 16,
-        cursor: locked ? 'default' : 'pointer',
-        opacity: locked ? 0.5 : 1,
-        transition: 'all 200ms ease',
-        maxWidth: 320,
+        gap: 18,
+        padding: '30px 28px',
+        borderRadius: 22,
+        cursor: 'pointer',
+        overflow: 'hidden',
+        background: 'var(--glass)',
+        border: '1px solid var(--line)',
+        transform: hover ? 'translateY(-6px) rotate(-0.3deg)' : 'translateY(0) rotate(0deg)',
+        boxShadow: hover
+          ? `0 22px 40px -18px ${accent}66, 0 0 0 1px ${accent}55`
+          : '0 1px 0 var(--line)',
+        transition: 'transform 260ms cubic-bezier(.2,.8,.2,1), box-shadow 260ms ease, border-color 260ms ease',
       }}
     >
+      {/* Left accent rail — the "door edge" */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: 5,
+          background: `linear-gradient(180deg, ${accent}, ${accent2})`,
+          opacity: hover ? 1 : 0.65,
+          transition: 'opacity 260ms ease',
         }}
-      >
+      />
+
+      {/* Ambient wash unique to this wing */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle at 100% 0%, ${accent}22, transparent 55%)`,
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: accent,
+          }}
+        >
+          {wing}
+        </span>
         <div
           style={{
-            width: 48,
-            height: 48,
+            width: 46,
+            height: 46,
             borderRadius: '50%',
-            background: locked
-              ? 'var(--glass-subtle)'
-              : 'linear-gradient(135deg, var(--indigo), var(--violet))',
+            background: `linear-gradient(135deg, ${accent}, ${accent2})`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            boxShadow: hover ? `0 8px 20px -6px ${accent}88` : 'none',
+            transition: 'box-shadow 260ms ease',
           }}
         >
           {icon}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 18 }}>{title}</div>
-          <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>{description}</div>
-        </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        {tags.map((t, i) => (
-          <span
-            key={i}
-            className="chip"
-            style={{
-              fontSize: 11,
-              background: available ? 'var(--glass-highlight)' : 'var(--glass-subtle)',
-            }}
-          >
-            {t}
+      <div style={{ position: 'relative', flex: 1 }}>
+        <h2 style={{ margin: '0 0 10px', fontSize: 25, letterSpacing: '-0.01em' }}>{title}</h2>
+        <p style={{ margin: 0, fontSize: 14, lineHeight: 1.65, color: 'var(--ink-2)' }}>{description}</p>
+      </div>
+
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          paddingTop: 16,
+          borderTop: '1px solid var(--line)',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: accent, lineHeight: 1 }}>{stat.value}</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-2)', marginTop: 4 }}>{stat.label}</div>
+        </div>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--ink)',
+          }}
+        >
+          {cta}
+          <span style={{ transform: hover ? 'translateX(3px)' : 'translateX(0)', transition: 'transform 200ms ease' }}>
+            →
           </span>
-        ))}
+        </span>
       </div>
     </div>
   );
@@ -84,47 +146,47 @@ export function ModeSelectScreen() {
     <div className="screen" style={{ background: 'transparent' }}>
       <TopBar here={0} showProfile />
 
-      <div style={{ padding: '32px 24px 40px', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ padding: '32px 24px 40px', maxWidth: 900, margin: '0 auto' }}>
         <div style={{ marginBottom: 32 }}>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', margin: '0 0 8px' }}>
             Choose your training mode
           </h1>
           <p style={{ fontSize: 15, color: 'var(--ink-2)', margin: 0 }}>
-            Select a clinical environment to begin your simulation
+            Two wings are open. Walk into either — your case load picks up where you left off.
           </p>
         </div>
 
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 20,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            gap: 24,
           }}
         >
-          <ModuleCard
+          <WingPanel
+            wing="Outpatient Wing"
             title="Consult Rooms"
-            description="Outpatient consultations across 11 specialties. Choose a case, take history, examine, and agree on a management plan."
-            icon={<IconStethoscope size={28} color="white" />}
-            available
-            tags={['Open now', '24 specialties']}
+            description="Outpatient consultations across 11 specialties. Choose a case, take a history, examine, and agree a management plan with the patient."
+            icon={<IconStethoscope size={22} color="white" />}
+            accent="var(--indigo)"
+            accent2="var(--violet)"
+            stat={{ value: '24', label: 'specialties open' }}
+            cta="Open now"
             onClick={() => store.setScreen('gpRoom')}
           />
 
-          <ModuleCard
+          <WingPanel
+            wing="Behavioral Health Wing"
             title="AI Psychiatry OSCE"
-            description="Medical students interview AI psychiatric patients with real-time voice interaction and structured assessment."
-            icon={<IconBrain size={28} color="white" />}
-            available
-            tags={['Start simulation']}
+            description="Interview AI psychiatric patients with real-time voice interaction, then get a structured assessment of your consultation."
+            icon={<IconBrain size={22} color="white" />}
+            accent="var(--violet)"
+            accent2="var(--cyan)"
+            stat={{ value: '10', label: 'case presentations' }}
+            cta="Start simulation"
             onClick={() => store.setScreen('mentalHealth')}
-          />
-
-          <ModuleCard
-            title="Emergency Department"
-            description="ED triage and resuscitation scenarios with critical care decision-making and time-pressure elements."
-            icon={<IconStethoscope size={28} color="white" />}
-            locked
-            tags={['Coming soon']}
           />
         </div>
       </div>

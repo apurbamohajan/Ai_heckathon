@@ -196,7 +196,7 @@ export function SplashScreen() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            className="grid-4"
+            className="grid-3"
             style={{ width: '100%', maxWidth: 500 }}
           >
             <div className="metric">
@@ -210,10 +210,6 @@ export function SplashScreen() {
             <div className="metric">
               <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--cyan)' }}>22</div>
               <div className="metric-label">Guidelines</div>
-            </div>
-            <div className="metric">
-              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--emerald)' }}>7</div>
-              <div className="metric-label">AI Tools</div>
             </div>
           </motion.div>
 
