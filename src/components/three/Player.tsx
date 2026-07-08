@@ -160,7 +160,7 @@ export function Player({
   // look-around. Without this, drei's PointerLockControls grabs pointer
   // lock on ANY click anywhere on the canvas — which fights every modal,
   // overlay, button, and bleed-through click in the rest of the UI.
-  return enableLook ? <PointerLockControls /> : null;
+  return <PointerLockControls enabled={enableLook} />;
 }
 
 function collides(x: number, z: number, colliders: WallCollider[]): boolean {

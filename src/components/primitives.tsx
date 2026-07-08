@@ -289,7 +289,7 @@ export function TopBar({ here = 0, steps = ['Polyclinic'], showProfile = true, o
           title="Open profile"
           style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink-2)' }}
         >
-          <span style={{ fontSize: 13, fontWeight: 600 }}>Dr. Bedirhan</span>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>Profile</span>
           <div
             style={{
               width: 32,
@@ -305,7 +305,7 @@ export function TopBar({ here = 0, steps = ['Polyclinic'], showProfile = true, o
               boxShadow: 'var(--glow)',
             }}
           >
-            B
+            P
           </div>
         </div>
       ) : <div style={{ width: 80 }} />}
