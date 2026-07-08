@@ -35,7 +35,7 @@ export function AgentTopologyScreen() {
     <div className="screen" style={{ background: 'transparent', overflowY: 'auto' }}>
       <TopBar
         here={6}
-        steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter', 'Debrief', 'Architecture']}
+        steps={['Consult Room', 'GP', 'Case', 'Brief', 'Encounter', 'Debrief', 'Architecture']}
       />
 
       <div style={{ padding: '24px 24px 40px', maxWidth: 1200, margin: '0 auto' }}>

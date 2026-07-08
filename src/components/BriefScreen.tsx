@@ -37,7 +37,7 @@ export function BriefScreen() {
 
   return (
     <div className="screen" style={{ position: 'relative', background: 'transparent' }}>
-      <TopBar here={3} steps={['Polyclinic', 'GP', 'Case', 'Brief']} />
+      <TopBar here={3} steps={['Consult Room', 'GP', 'Case', 'Brief']} />
 
       <div
         style={{

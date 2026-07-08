@@ -2334,7 +2334,7 @@ function SpecialtyPoster({
         {title}
       </Text>
       <Text position={[0, -0.18, 0.04]} fontSize={0.11} color="#fff8ec" anchorX="center" anchorY="middle">
-        {subtitle ?? 'POLYCLINIC'}
+        {subtitle ?? 'CONSULT ROOM'}
       </Text>
     </group>
   );
@@ -2791,7 +2791,7 @@ export function Polyclinic({
 
       {/* Corridor signage */}
       <CorridorSign position={[-3.6, 2.3, ROOM_FRONT_Z + 0.16]} title={clinicLabel.toUpperCase()} />
-      <CorridorSign position={[3.6, 2.3, ROOM_FRONT_Z + 0.16]} title="POLYCLINIC" />
+      <CorridorSign position={[3.6, 2.3, ROOM_FRONT_Z + 0.16]} title="CONSULT ROOM" />
       <group position={[0, 2.5, CORRIDOR_FRONT_Z - 0.2]} rotation={[0, Math.PI, 0]}>
         <mesh>
           <boxGeometry args={[3.6, 0.6, 0.06]} />
