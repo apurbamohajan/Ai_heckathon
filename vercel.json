@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/agent/:path*", "destination": "https://ravishing-amazement-production-605e.up.railway.app/agent/:path*" },
-    { "source": "/voice/:path*", "destination": "https://ravishing-amazement-production-605e.up.railway.app/voice/:path*" },
+    { "source": "/agent/:path*", "destination": "http://127.0.0.1:8787'" },
+    { "source": "/voice/:path*", "destination": "http://127.0.0.1:8787'" },
     { "source": "/:path*", "destination": "/" }
   ]
 }
