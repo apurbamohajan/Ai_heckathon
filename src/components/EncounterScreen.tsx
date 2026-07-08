@@ -108,7 +108,7 @@ function Loader() {
           fontWeight: 600,
         }}
       >
-        ← Back to consult room
+        Loading polyclinic…
       </div>
     </Html>
   );
@@ -153,7 +153,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
         border: '2px solid var(--line)',
         boxShadow: '0 2px 0 var(--line)',
         margin: '0 2px',
-        color: 'var(--ink)',
+        color: '#1a1a1a',
       }}
     >
       {children}
@@ -313,7 +313,7 @@ export function EncounterScreen() {
 
   return (
     <div className="screen" style={{ background: 'var(--cream)', position: 'relative' }}>
-      <TopBar here={4} steps={['Consult Room', 'GP', 'Case', 'Brief', 'Encounter']} />
+      <TopBar here={4} steps={['Polyclinic', 'GP', 'Case', 'Brief', 'Encounter']} />
 
       <div
         style={{
@@ -391,7 +391,7 @@ export function EncounterScreen() {
             boxShadow: 'var(--plush-tiny)',
             fontSize: 12,
             fontWeight: 700,
-            color: 'var(--ink-2)',
+            color: '#333333',
             pointerEvents: 'none',
           }}
         >

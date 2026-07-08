@@ -71,7 +71,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
     status === 'speaking' ? 'var(--peach-deep)' :
     status === 'listening' ? 'var(--mint-deep)' :
     status === 'thinking' ? 'var(--butter-deep)' :
-    live ? 'var(--mint-deep)' : 'var(--ink-soft)';
+    live ? 'var(--mint-deep)' : '#666666';
 
   const showSubtitle = !!subtitle.text && subtitle.text !== '…';
   const speakerLabel = subtitle.who === 'you' ? 'You' : firstName;
@@ -97,7 +97,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
         boxShadow: '0 6px 0 var(--line), 0 14px 28px rgba(43,30,22,0.18)',
         padding: '12px 14px',
         fontFamily: 'Nunito, system-ui, sans-serif',
-        color: 'var(--ink)',
+        color: '#1a1a1a',
       }}
     >
       <div
@@ -111,7 +111,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
       >
         <div style={{ fontSize: 13, fontWeight: 900 }}>
           {patientName}
-          <span style={{ fontSize: 10, color: 'var(--ink-soft)', marginLeft: 6, fontWeight: 700 }}>
+          <span style={{ fontSize: 10, color: '#555555', marginLeft: 6, fontWeight: 700 }}>
             {patientLabel}
           </span>
         </div>
@@ -152,7 +152,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
           fontStyle: showSubtitle ? 'italic' : 'normal',
           fontSize: 12,
           lineHeight: 1.4,
-          color: showSubtitle ? 'var(--ink)' : 'var(--ink-soft)',
+          color: showSubtitle ? '#1a1a1a' : '#666666',
           fontWeight: 600,
           maxHeight: 110,
           overflowY: 'auto',
@@ -168,7 +168,7 @@ export function DockedVoicePanel({ patientName, patientLabel }: Props) {
               style={{
                 fontSize: 9,
                 fontWeight: 800,
-                color: 'var(--ink-2)',
+                color: '#444444',
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 marginBottom: 2,

@@ -174,7 +174,7 @@ export function ExamineOverlay({ onClose, onDispatch }: Props) {
                   alignItems: 'center',
                   gap: 8,
                   fontFamily: 'inherit',
-                  color: 'var(--ink)',
+                  color: '#1a1a1a',
                   opacity: disabled ? 0.45 : 1,
                 }}
               >
@@ -182,7 +182,7 @@ export function ExamineOverlay({ onClose, onDispatch }: Props) {
                 {t.badge !== undefined && (
                   <span
                     className="chip"
-                    style={{ fontSize: 10, padding: '1px 7px', background: 'white' }}
+                    style={{ fontSize: 10, padding: '1px 7px', background: 'white', color: '#111' }}
                   >
                     {t.badge}
                   </span>
@@ -391,8 +391,8 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-2)' }}>
-        Consult room tests return <strong>instantly</strong>. Sections are collapsed — click a row to open it.
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#333333' }}>
+        Polyclinic tests return <strong>instantly</strong>. Sections are collapsed — click a row to open it.
       </div>
 
       {/* Panels — clinic-scoped, collapsible. */}
@@ -426,7 +426,7 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
                   }}
                   title={panel.description}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, color: '#1a1a1a' }}>
                     <strong>{allOrdered ? '✓ ' : ''}{panel.label}</strong>
                     <span
                       style={{
@@ -437,12 +437,13 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
                         borderRadius: 'var(--r-pill)',
                         padding: '1px 7px',
                         whiteSpace: 'nowrap',
+                        color: '#1a1a1a',
                       }}
                     >
                       {panel.testIds.length} tests
                     </span>
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--ink-2)', fontWeight: 700, marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: '#333333', fontWeight: 700, marginTop: 4 }}>
                     {panel.description}
                   </div>
                 </button>
@@ -498,7 +499,7 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
                         gap: 8,
                       }}
                     >
-                      <span>
+                      <span style={{ color: '#1a1a1a' }}>
                         {isOrdered ? '✓ ' : ''}
                         {t.name}
                       </span>
@@ -508,7 +509,7 @@ function TestsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGameS
                           fontWeight: 800,
                           letterSpacing: '0.06em',
                           textTransform: 'uppercase',
-                          color: isOrdered ? 'var(--mint-deep)' : 'var(--ink-2)',
+                          color: isOrdered ? 'var(--mint-deep)' : '#333333',
                           background: 'var(--cream)',
                           border: '2px solid var(--line)',
                           borderRadius: 'var(--r-pill)',
@@ -569,6 +570,7 @@ function CollapsibleSection({
           gap: 10,
           fontWeight: 800,
           fontSize: 13,
+          color: '#1a1a1a',
         }}
       >
         <span
@@ -583,18 +585,19 @@ function CollapsibleSection({
             fontWeight: 800,
             fontSize: 12,
             boxShadow: 'var(--plush-tiny)',
+            color: '#1a1a1a',
           }}
         >
           {icon} {label}
         </span>
         <span
           className="chip"
-          style={{ fontSize: 11, padding: '2px 8px' }}
+          style={{ fontSize: 11, padding: '2px 8px', color: '#1a1a1a' }}
         >
           {count}
         </span>
         {extra && (
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-2)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#333333' }}>
             {extra}
           </span>
         )}
@@ -603,7 +606,7 @@ function CollapsibleSection({
           style={{
             marginLeft: 'auto',
             fontSize: 14,
-            color: 'var(--ink-2)',
+            color: '#333333',
             fontWeight: 900,
           }}
         >
@@ -687,7 +690,7 @@ function ResultsTab({ patient }: { patient: NonNullable<ReturnType<typeof useGam
                   border: '2px solid var(--line)',
                 }}
               />
-              <span>{test.name}</span>
+              <span style={{ color: '#111' }}>{test.name}</span>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-2)' }}>
                 {report?.abnormal ? 'abnormal' : 'normal'}
               </span>
@@ -890,7 +893,7 @@ function DiagnoseTab({
   );
   if (c.diagnosisOptions.length === 0) {
     return (
-      <div className="plush" style={{ padding: 14, fontWeight: 700, color: 'var(--ink-2)' }}>
+      <div className="plush" style={{ padding: 14, fontWeight: 700, color: '#333333' }}>
         No diagnosis options for this case.
       </div>
     );
@@ -899,7 +902,7 @@ function DiagnoseTab({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontWeight: 700, color: 'var(--ink-2)' }}>
+      <div style={{ fontWeight: 700, color: '#333333' }}>
         Pick the most likely diagnosis based on what you've gathered so far.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
@@ -921,6 +924,7 @@ function DiagnoseTab({
                 background: bg,
                 fontWeight: 800,
                 cursor: submitted !== null ? 'default' : 'pointer',
+                color: '#1a1a1a',
               }}
             >
               {showCorrect ? '✓ ' : showWrong ? '✗ ' : ''}
@@ -937,6 +941,7 @@ function DiagnoseTab({
             padding: 14,
             background: isCorrect ? 'var(--mint)' : 'var(--rose)',
             fontWeight: 800,
+            color: '#1a1a1a',
           }}
         >
           {isCorrect
@@ -997,7 +1002,7 @@ function ChatTab({ patientName }: { patientName: string }) {
 
   if (visible.length === 0) {
     return (
-      <div className="plush" style={{ padding: 14, fontWeight: 700, color: 'var(--ink-2)' }}>
+      <div className="plush" style={{ padding: 14, fontWeight: 700, color: '#333333' }}>
         No conversation yet. The transcript appears here as you talk to {patientName.split(' ')[0]} —
         and updates live during the consultation.
       </div>
@@ -1033,13 +1038,14 @@ function ChatTab({ patientName }: { patientName: string }) {
               fontSize: 13,
               fontWeight: 600,
               lineHeight: 1.4,
+              color: '#1a1a1a',
             }}
           >
             <div
               style={{
                 fontSize: 10,
                 fontWeight: 800,
-                color: 'var(--ink-2)',
+                color: '#333333',
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 marginBottom: 2,
@@ -1283,7 +1289,7 @@ function RxTab({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ flex: 1, fontWeight: 800, fontSize: 13 }}>
+                <div style={{ flex: 1, fontWeight: 800, fontSize: 13, color: '#111' }}>
                   {med.name}{' '}
                   <span style={{ fontSize: 11, color: 'var(--ink-2)', fontWeight: 700 }}>
                     ({med.class})
