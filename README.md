@@ -1,214 +1,381 @@
-# AI Clinical Training Simulator
+# auraliscare
 
-An AI-powered virtual patient simulation platform designed to help medical students practice psychiatric interviews and improve clinical communication skills.
+## AI Clinical Operating System
 
-## Overview
+> Premium clinical simulation platform for the next generation of healthcare teams.
 
-The AI Clinical Training Simulator provides an interactive environment where students can interview simulated psychiatric patients, analyze symptoms, and receive structured feedback.
+auraliscare is an AI-powered clinical training platform that enables healthcare learners to practice realistic consultations, interact with intelligent virtual patients, and receive structured AI-grade clinical feedback.
 
-The system uses Generative AI to create realistic patient conversations based on predefined clinical scenarios such as depression, anxiety, and panic disorders.
+The platform combines **Generative AI, voice interaction, clinical workflows, and evidence-guided evaluation** to create a realistic simulation environment for medical education.
 
-## Problem Statement
+---
 
-Clinical interview practice is limited due to the availability, cost, and scheduling challenges of standardized patients. Medical students require a scalable solution that allows repeated practice with realistic patient interactions.
+# 🚀 Overview
 
-This project addresses this challenge by providing an AI-driven virtual patient system for clinical training.
+Traditional clinical training depends heavily on standardized patients, limited clinical exposure, and instructor availability. auraliscare addresses these challenges by providing an always-available AI clinical simulation environment.
 
-## Features
+The platform allows trainees to:
 
-* AI-generated virtual psychiatric patients
-* Interactive clinical interview sessions
-* Multiple mental health scenarios
-* Patient personality and symptom simulation
-* Session-based conversation tracking
-* Automated clinical performance evaluation
-* Real-time API communication
-* Cloud deployment support
+* Conduct realistic patient consultations
+* Practice history-taking and clinical reasoning
+* Simulate psychiatric OSCE examinations
+* Receive automated performance assessment
+* Improve communication and decision-making skills
 
-## Supported Patient Scenarios
+---
 
-* Normal Patient
-* Mild Depression
-* Major Depression
-* Anxiety Disorder
-* Panic Attack
+# ✨ Key Features
 
-## System Architecture
+## 🏥 Outpatient Consultation Wing
+
+Simulated outpatient consultation rooms across multiple specialties.
+
+Features:
+
+* Clinical case selection
+* Patient history taking
+* Examination workflow
+* Management planning
+* AI-assisted feedback
+
+Platform coverage:
+
+* **240+ Clinical Cases**
+* **11 Specialties**
+* **22 Clinical Guidelines**
+
+---
+
+## 🧠 AI Psychiatry OSCE Simulator
+
+An interactive behavioral health training environment.
+
+Students can interview AI psychiatric patients and receive structured evaluation.
+
+Supported cases:
+
+* Normal patient
+* Mild depression
+* Major depression
+* Anxiety disorder
+* Panic attack
+* PTSD
+* OCD
+* Bipolar disorder
+* Schizophrenia
+* Suicide risk assessment
+
+---
+
+# 🏗️ System Architecture
 
 ```
-Student
-   |
-   ↓
-Web Interface
-   |
-   ↓
-AI Clinical Agent
-   |
-   ├── Patient Simulation Module
-   |
-   ├── Session Management
-   |
-   └── Evaluation Engine
-            |
-            ↓
-       Feedback Report
+                 Trainee
+                    |
+                    ↓
+          Clinical Simulation UI
+                    |
+                    ↓
+            Managed AI Agent
+                    |
+     ┌──────────────┼──────────────┐
+     ↓              ↓              ↓
+Patient AI     Encounter Log   Evaluation Engine
+Simulation      Recorder        AI Attending
+     |                              |
+     └──────────────┬───────────────┘
+                    ↓
+            Clinical Feedback Report
 ```
 
-## Technology Stack
+---
 
-### Backend
+# 🔄 Clinical Simulation Workflow
+
+## 1. Case Selection
+
+The trainee selects:
+
+* Specialty
+* Clinical scenario
+* Patient profile
+
+Example:
+
+```
+Major Depression
+        ↓
+Patient Persona Generation
+        ↓
+Consultation Begins
+```
+
+---
+
+## 2. Patient Consultation
+
+The trainee interacts with an AI-generated patient.
+
+The system tracks:
+
+* Questions asked
+* Clinical decisions
+* Communication style
+* Patient responses
+
+---
+
+## 3. AI Attending Review
+
+The AI attending analyzes the complete encounter.
+
+Evaluation domains:
+
+| Domain                | Description                       |
+| --------------------- | --------------------------------- |
+| History & Examination | Quality of information gathering  |
+| Care Pathway          | Clinical reasoning and management |
+| Patient Rapport       | Communication and empathy         |
+
+---
+
+# 🤖 AI Architecture
+
+## Patient Simulation Agent
+
+Generates realistic patient conversations using:
+
+* Clinical scenarios
+* Patient personas
+* Symptom profiles
+* Conversation memory
+
+---
+
+## Voice Interaction Layer
+
+Real-time voice pipeline:
+
+```
+Speech Input
+      |
+      ↓
+Speech-to-Text
+      |
+      ↓
+AI Patient Agent
+      |
+      ↓
+Text-to-Speech
+      |
+      ↓
+Voice Response
+```
+
+Technology:
+
+* LiveKit
+* Deepgram STT
+* Cartesia TTS
+
+---
+
+## AI Attending Agent
+
+The evaluation agent:
+
+* Reviews consultation history
+* Compares actions with clinical guidelines
+* Generates structured feedback
+* Scores learner performance
+
+Technology:
+
+* Gemini Managed Agent
+* Gemini Flash Model
+
+---
+
+# 📊 Evaluation Framework
+
+The simulator grades trainees using three major rubrics.
+
+## History & Examination
+
+Measures:
+
+* Question completeness
+* Symptom exploration
+* Clinical data collection
+
+---
+
+## Care Pathway
+
+Measures:
+
+* Differential diagnosis
+* Investigation choices
+* Treatment planning
+
+---
+
+## Patient Rapport
+
+Measures:
+
+* Empathy
+* Communication quality
+* Patient-centered approach
+
+---
+
+# 🧩 Technology Stack
+
+## Frontend
+
+* React / Next.js
+* Tailwind CSS
+* Interactive simulation interface
+
+## Backend
 
 * Python
 * FastAPI
 * Uvicorn
 
-### AI
+## AI
 
-* Google Gemini Generative AI
+* Google Gemini
+* Generative AI Agents
 * Prompt Engineering
-* LLM-based Patient Simulation
 
-### Deployment
+## Deployment
 
 * Railway Cloud Platform
 
-### API Documentation
+## API Documentation
 
-* OpenAPI / Swagger
+* OpenAPI
+* Swagger UI
 
-## API Endpoints
+---
 
-| Method | Endpoint                              | Description              |
-| ------ | ------------------------------------- | ------------------------ |
-| GET    | `/health`                             | Health check             |
-| POST   | `/agent/bootstrap`                    | Initialize AI agent      |
-| POST   | `/agent/sessions`                     | Create interview session |
-| GET    | `/agent/sessions/{session_id}`        | Retrieve session         |
-| POST   | `/agent/sessions/{session_id}/events` | Send conversation events |
-| GET    | `/agent/sessions/{session_id}/stream` | Stream AI responses      |
-| POST   | `/agent/mental-health`                | Mental health evaluation |
-| POST   | `/voice/token`                        | Generate voice token     |
+# 📡 API Overview
 
-## Installation
+| Endpoint                      | Purpose                     |
+| ----------------------------- | --------------------------- |
+| `/health`                     | System health check         |
+| `/agent/bootstrap`            | Initialize AI agent         |
+| `/agent/sessions`             | Create consultation session |
+| `/agent/sessions/{id}`        | Retrieve session            |
+| `/agent/sessions/{id}/events` | Store encounter events      |
+| `/agent/patient/stream`       | Stream AI patient response  |
+| `/agent/mental-health`        | Psychiatric evaluation      |
+| `/voice/token`                | Voice authentication        |
 
-### Clone Repository
+---
 
-```bash
-git clone <repository-url>
-cd backend
-```
+# 📈 Current Platform Metrics
 
-### Create Virtual Environment
+| Metric            | Value |
+| ----------------- | ----: |
+| Clinical Cases    |  240+ |
+| Specialties       |    11 |
+| Guidelines        |    22 |
+| Psychiatric Cases |    10 |
 
-```bash
-python -m venv .venv
-```
+---
 
-Activate:
+# 🔐 Ethical Considerations
 
-Windows:
+auraliscare is designed for **medical education only**.
 
-```bash
-.venv\Scripts\activate
-```
+The system:
 
-Linux/Mac:
+✅ Supports clinical training
+✅ Provides simulation-based practice
+✅ Helps improve communication skills
 
-```bash
-source .venv/bin/activate
-```
+The system does not:
 
-### Install Dependencies
+❌ Diagnose real patients
+❌ Replace healthcare professionals
+❌ Provide medical treatment recommendations
 
-```bash
-pip install -r requirements.txt
-```
+---
 
-## Environment Variables
+# ⚠️ Limitations
 
-Create a `.env` file:
+* AI responses may occasionally contain inaccuracies.
+* Simulated patients cannot represent every real-world scenario.
+* Clinical validation requires collaboration with medical educators.
+* Performance depends on the underlying AI model.
 
-```
-GEMINI_API_KEY=your_api_key
-```
+---
 
-## Running Locally
+# 🔮 Future Improvements
 
-Start the backend:
+Planned enhancements:
 
-```bash
-python server.py
-```
+* Multilingual patient simulation
+* Advanced voice emotion recognition
+* 3D virtual consultation rooms
+* Real-time clinical decision support
+* Medical educator dashboards
+* Personalized learner progress tracking
 
-The API will run at:
+---
 
-```
-http://127.0.0.1:8787
-```
+# 📄 Model Card
 
-Swagger documentation:
+## Model
 
-```
-http://127.0.0.1:8787/docs
-```
+Gemini-powered conversational clinical agent.
 
-## Model Card Summary
+## Purpose
 
-### Model
+Educational patient simulation and OSCE preparation.
 
-Gemini-powered conversational AI agent.
-
-### Purpose
-
-Educational psychiatric interview simulation.
-
-### Input
+## Inputs
 
 * Patient profile
 * Clinical scenario
-* Student questions
-* Conversation history
+* Student conversation
+* Encounter history
 
-### Output
+## Outputs
 
 * Patient responses
-* Interview feedback
-* Clinical evaluation
+* Clinical feedback
+* Performance scores
 
-### Limitations
+---
 
-* AI responses may occasionally be inaccurate.
-* Simulated patients cannot fully represent real patient diversity.
-* The system is not intended for medical diagnosis or treatment decisions.
+# 📚 Data Card
 
-## Data Card Summary
+## Dataset Type
 
-### Dataset Type
+Synthetic clinical case scenarios.
 
-Synthetic psychiatric patient scenarios.
+## Data Sources
 
-### Data Sources
+* Educational clinical cases
+* Expert-designed scenarios
+* Simulated patient profiles
 
-* Expert-designed clinical cases
-* Synthetic patient profiles
-* Educational mental health scenarios
+## Privacy
 
-### Privacy
+* No real patient records used
+* No personally identifiable information stored
 
-* No real patient information is used.
-* No personally identifiable information is stored.
+---
 
-## Future Improvements
+# 👥 Project Vision
 
-* Voice-based patient interaction
-* Facial emotion simulation
-* Expanded psychiatric conditions
-* Clinician-validated evaluation criteria
-* Student progress analytics
+auraliscare aims to become an AI Clinical Operating System that transforms healthcare education by providing scalable, realistic, and evidence-guided clinical simulation for future healthcare teams.
 
-## Ethical Considerations
-
-This system is designed only for medical education and training. It should not replace professional healthcare providers or be used for real patient diagnosis.
+---
 
 ## License
 
