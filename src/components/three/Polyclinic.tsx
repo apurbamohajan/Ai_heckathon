@@ -365,7 +365,7 @@ function makeMonitorTexture(patient: MonitorPatient | null): CanvasTexture {
   ctx.fillRect(0, 0, w, 40);
   ctx.fillStyle = '#3B2A1F';
   ctx.font = 'bold 17px "Nunito", sans-serif';
-  ctx.fillText('medkit · Patient Record', 14, 26);
+  ctx.fillText('auraliscare · Patient Record', 14, 26);
   ctx.fillStyle = '#5FCFA0';
   ctx.font = 'bold 12px "Nunito", sans-serif';
   ctx.fillText('● ACTIVE SESSION', w - 150, 26);
@@ -2798,7 +2798,7 @@ export function Polyclinic({
           <meshStandardMaterial color={PALETTE.accent} emissive={PALETTE.accent} emissiveIntensity={0.4} />
         </mesh>
         <Text position={[0, 0, 0.04]} fontSize={0.22} color="#fff8ec" anchorX="center" anchorY="middle" fontWeight={700}>
-          POLYCLINIC — {clinicLabel.toUpperCase()}
+          CONSULT ROOM — {clinicLabel.toUpperCase()}
         </Text>
       </group>
 
