@@ -781,7 +781,7 @@ async def stream_events(session_id: str, request: Request):
             }
 
             model = genai.GenerativeModel(
-                model_name="gemini-3.5-flash",
+                model_name="gemini-1.5-pro",
                 system_instruction=MEDKIT_ATTENDING_SYSTEM_PROMPT,
                 tools=render_evaluation_tool
             )
@@ -1127,7 +1127,7 @@ async def patient_stream(req: dict):
     _ensure_gemini_available()
 
     model = genai.GenerativeModel(
-        model_name="gemini-3.5-flash",
+        model_name="gemini-1.5-flash",
         system_instruction=req.get("system", "")
     )
 

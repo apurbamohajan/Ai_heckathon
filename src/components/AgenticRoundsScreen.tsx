@@ -166,7 +166,7 @@ function GradingTab() {
             <span style={{ fontWeight: 700 }}>Attending</span>
           </div>
           <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>
-            Claude Managed Agent · Opus 4.7 · scores three domains.
+            Gemini Managed Agent · Gemini 3.5 Flash · scores three domains.
           </p>
         </div>
       </div>
@@ -247,7 +247,7 @@ function AgentTab() {
           }}
         >
           <div className="metric">
-            <div style={{ fontSize: 18, fontWeight: 800 }}>claude-opus-4-7</div>
+            <div style={{ fontSize: 18, fontWeight: 800 }}>gemini-3.5-flash</div>
             <div className="metric-label">Model</div>
           </div>
           <div className="metric">

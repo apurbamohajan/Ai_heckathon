@@ -148,7 +148,7 @@ export function AgentTopologyScreen() {
                 {n.id === 'trainee' && 'The medical student or doctor in training.'}
                 {n.id === 'voice' && 'LiveKit + Deepgram + Cartesia for real-time voice interaction.'}
                 {n.id === 'log' && 'Captures all actions during the encounter for debriefing.'}
-                {n.id === 'attending' && 'Claude Managed Agent that grades the encounter.'}
+                {n.id === 'attending' && 'Gemini Managed Agent that grades the encounter.'}
                 {n.id === 'patient' && 'AI patient persona with medical history and symptoms.'}
                 {n.id === 'tests' && 'Laboratory and imaging tests available in the case.'}
                 {n.id === 'treatments' && 'Medications and interventions for the case.'}
